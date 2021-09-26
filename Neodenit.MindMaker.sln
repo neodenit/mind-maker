@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31702.278
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neodenit.MindMaker.Web.Server", "Neodenit.MindMaker.Web\Server\Neodenit.MindMaker.Web.Server.csproj", "{B44F6B11-8159-4657-BCED-DD23D58DBC54}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neodenit.MindMaker.Web.Client", "Neodenit.MindMaker.Web\Client\Neodenit.MindMaker.Web.Client.csproj", "{6D5E434B-996F-4950-B9D6-13AF383511AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neodenit.MindMaker.Web.Shared", "Neodenit.MindMaker.Web\Shared\Neodenit.MindMaker.Web.Shared.csproj", "{4A466965-B7D2-49FF-A2A7-395ECEFE4820}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neodenit.MindMaker.Services.MindMapping", "Neodenit.MindMaker.Services.MindMapping\Neodenit.MindMaker.Services.MindMapping.csproj", "{E85D0DE0-4CF6-4E6B-9E6B-B0A76AAD90AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Neodenit.MindMaker.Services.GPT3", "Neodenit.MindMaker.Services.GPT3\Neodenit.MindMaker.Services.GPT3.csproj", "{547B2129-20FC-4177-B572-8DCFADD6E70E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B44F6B11-8159-4657-BCED-DD23D58DBC54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B44F6B11-8159-4657-BCED-DD23D58DBC54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B44F6B11-8159-4657-BCED-DD23D58DBC54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B44F6B11-8159-4657-BCED-DD23D58DBC54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D5E434B-996F-4950-B9D6-13AF383511AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D5E434B-996F-4950-B9D6-13AF383511AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D5E434B-996F-4950-B9D6-13AF383511AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D5E434B-996F-4950-B9D6-13AF383511AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A466965-B7D2-49FF-A2A7-395ECEFE4820}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A466965-B7D2-49FF-A2A7-395ECEFE4820}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A466965-B7D2-49FF-A2A7-395ECEFE4820}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A466965-B7D2-49FF-A2A7-395ECEFE4820}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E85D0DE0-4CF6-4E6B-9E6B-B0A76AAD90AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E85D0DE0-4CF6-4E6B-9E6B-B0A76AAD90AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E85D0DE0-4CF6-4E6B-9E6B-B0A76AAD90AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E85D0DE0-4CF6-4E6B-9E6B-B0A76AAD90AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{547B2129-20FC-4177-B572-8DCFADD6E70E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{547B2129-20FC-4177-B572-8DCFADD6E70E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{547B2129-20FC-4177-B572-8DCFADD6E70E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{547B2129-20FC-4177-B572-8DCFADD6E70E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E86E513D-DB66-4B4B-8246-B6E4B81E2A1C}
+	EndGlobalSection
+EndGlobal
