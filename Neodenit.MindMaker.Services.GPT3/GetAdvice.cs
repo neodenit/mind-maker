@@ -7,7 +7,6 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Neodenit.MindMaker.Services.GPT3.Models;
 using OpenAI_API;
-using SmartListAdviceService;
 
 namespace Neodenit.MindMaker.Services.GPT3
 {

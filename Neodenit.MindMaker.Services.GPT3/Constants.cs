@@ -1,4 +1,4 @@
-﻿namespace SmartListAdviceService
+﻿namespace Neodenit.MindMaker.Services.GPT3
 {
     public static class Constants
     {
