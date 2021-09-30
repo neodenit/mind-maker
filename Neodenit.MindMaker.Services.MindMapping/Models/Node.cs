@@ -16,6 +16,8 @@ namespace Neodenit.MindMaker.Services.MindMapping.Models
 
         public DateTime CreationTime { get; set; }
 
+        public DateTime LastUpdateTime { get; set; }
+
         public IEnumerable<Node> Children { get; set; } = Enumerable.Empty<Node>();
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Neodenit.MindMaker.Services.MindMapping
@@ -8,6 +9,7 @@ namespace Neodenit.MindMaker.Services.MindMapping
         {
             var host = new HostBuilder()
                 .ConfigureFunctionsWorkerDefaults()
+                .ConfigureServices(services => services.AddTransient<IHelpers, Helpers>())
                 .Build();
 
             host.Run();
