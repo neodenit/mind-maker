@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -12,8 +11,15 @@ namespace Neodenit.MindMaker.Services.MindMapping
 {
     public class CreateNode
     {
+        private readonly IHelpers helpers;
+
+        public CreateNode(IHelpers helpers)
+        {
+            this.helpers = helpers ?? throw new ArgumentNullException(nameof(helpers));
+        }
+
         [Function(nameof(CreateNode))]
-        public static async Task<MultiResponse> RunAsync(
+        public async Task<MultiResponse> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
             [CosmosDBInput(
                 Constants.DatabaseId,
@@ -44,27 +50,11 @@ namespace Neodenit.MindMaker.Services.MindMapping
             var response = req.CreateResponse();
             await response.WriteAsJsonAsync(newNode);
 
-            var parent = GetNode(root, request.SubPath);
+            var parent = helpers.GetNode(root, request.SubPath);
             parent.Children = parent.Children.Append(newNode);
 
             var result = new MultiResponse { OutputNode = root, HttpResponse = response };
             return result;
-        }
-
-        private static Node GetNode(Node node, IEnumerable<string> path)
-        {
-            if (path.Any())
-            {
-                var head = path.First();
-                var tail = path.Skip(1);
-
-                var nextNode = node.Children.Single(x => x.Id == head);
-                return GetNode(nextNode, tail);
-            }
-            else
-            {
-                return node;
-            }
         }
     }
 }
