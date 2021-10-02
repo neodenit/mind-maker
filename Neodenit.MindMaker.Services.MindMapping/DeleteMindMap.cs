@@ -20,7 +20,7 @@ namespace Neodenit.MindMaker.Services.MindMapping
 
         [Function(nameof(DeleteMindMap))]
         public async Task RunAsync(
-            [HttpTrigger(AuthorizationLevel.Function, "delete")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
             [CosmosDBInput(
                 Constants.DatabaseId,
                 Constants.ContainerId,

@@ -45,7 +45,7 @@ namespace Neodenit.MindMaker.Services.MindMapping
             var response = req.CreateResponse();
             await response.WriteAsJsonAsync(node);
 
-            var result = new MultiResponse { OutputNode = node, HttpResponse = response };
+            var result = new MultiResponse { OutputNode = root, HttpResponse = response };
             return result;
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -40,6 +41,10 @@ namespace Neodenit.MindMaker.Web.Server
             services.AddRazorPages();
 
             services.AddSingleton<ICosmosDB, CosmosDB>();
+
+            services.AddHttpClient<IMindMappingService, MindMappingService>(client => client.BaseAddress = new Uri(Configuration["MindMappingServiceUrl"]));
+
+            services.AddAutoMapper(typeof(Startup));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ICosmosDB cosmosDB)
