@@ -9,7 +9,7 @@ using Neodenit.MindMaker.Web.Shared;
 
 namespace Neodenit.MindMaker.Web.Server
 {
-    public class MindMappingService: IMindMappingService
+    public class MindMappingService : IMindMappingService
     {
         private readonly HttpClient httpClient;
 

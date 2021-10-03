@@ -43,6 +43,7 @@ namespace Neodenit.MindMaker.Web.Server
             services.AddSingleton<ICosmosDB, CosmosDB>();
 
             services.AddHttpClient<IMindMappingService, MindMappingService>(client => client.BaseAddress = new Uri(Configuration["MindMappingServiceUrl"]));
+            services.AddHttpClient<IAdviceService, AdviceService>(client => client.BaseAddress = new Uri(Configuration["AdviceServiceUrl"]));
 
             services.AddAutoMapper(typeof(Startup));
         }
