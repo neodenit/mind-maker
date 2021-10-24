@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Neodenit.MindMaker.Web.Server.Models;
 using Neodenit.MindMaker.Web.Shared;
 
 namespace Neodenit.MindMaker.Web.Server.Controllers
@@ -17,19 +19,20 @@ namespace Neodenit.MindMaker.Web.Server.Controllers
     {
         private readonly IMapper mapper;
         private readonly IMindMappingService mindMappingService;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        private string UserName => HttpContext.User.Identity.Name;
-
-        public MindMapController(IMapper mapper, IMindMappingService mindMappingService)
+        public MindMapController(IMapper mapper, IMindMappingService mindMappingService, UserManager<ApplicationUser> userManager)
         {
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             this.mindMappingService = mindMappingService;
+            this.userManager = userManager;
         }
 
         [HttpGet]
         public async Task<IEnumerable<NodeModel>> GetAsync()
         {
-            IEnumerable<NodeDTO> nodeListDTO = await mindMappingService.GetMindMapsAsync(UserName);
+            string userName = await GetUserName();
+            IEnumerable<NodeDTO> nodeListDTO = await mindMappingService.GetMindMapsAsync(userName);
             var nodeListModel = mapper.Map<IEnumerable<NodeModel>>(nodeListDTO);
             return nodeListModel;
         }
@@ -42,7 +45,7 @@ namespace Neodenit.MindMaker.Web.Server.Controllers
                 CreateNodeRequestDTO requestDTO = new()
                 {
                     NewNodeName = request.NewItemName,
-                    Owner = UserName,
+                    Owner = await GetUserName(),
                     RootId = request.Path.First(),
                     SubPath = request.Path.Skip(1)
                 };
@@ -56,7 +59,7 @@ namespace Neodenit.MindMaker.Web.Server.Controllers
                 CreateMindMapRequestDTO requestDTO = new()
                 {
                     NewMindMapName = request.NewItemName,
-                    Owner = UserName
+                    Owner = await GetUserName()
                 };
 
                 NodeDTO nodeDTO = await mindMappingService.PostMindMapAsync(requestDTO);
@@ -71,7 +74,7 @@ namespace Neodenit.MindMaker.Web.Server.Controllers
             UpdateNodeRequestDTO requestDTO = new()
             {
                 UpdatedNodeName = request.UpdatedNodeName,
-                Owner = UserName,
+                Owner = await GetUserName(),
                 RootId = request.Path.First(),
                 SubPath = request.Path.Skip(1)
             };
@@ -89,7 +92,7 @@ namespace Neodenit.MindMaker.Web.Server.Controllers
             {
                 DeleteNodeRequestDTO requestDTO = new()
                 {
-                    Owner = UserName,
+                    Owner = await GetUserName(),
                     RootId = request.Path.First(),
                     SubPath = request.Path.Skip(1)
                 };
@@ -101,11 +104,18 @@ namespace Neodenit.MindMaker.Web.Server.Controllers
                 DeleteMindMapRequestDTO requestDTO = new()
                 {
                     MindMapId = request.Path.Single(),
-                    Owner = UserName
+                    Owner = await GetUserName()
                 };
 
                 await mindMappingService.DeleteMindMapAsync(requestDTO);
             }
+        }
+
+        private async Task<string> GetUserName()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = await userManager.FindByIdAsync(userId);
+            return user.UserName;
         }
     }
 }

@@ -1,7 +1,178 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
-<h1>Hello, world!</h1>
+@using Neodenit.MindMaker.Web.Shared
 
-Welcome to your new app.
+@inject HttpClient HttpClient
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<div class="container-fluid">
+    <h1>Mind Maps</h1>
+
+    <div class="row">
+        @for (int i = 0; i < nodeLayers.Count; i++)
+        {
+            var layer = nodeLayers[i];
+            var index = i;
+
+            <div class="col-sm">
+                @if (layer?.Any() == true)
+                {
+                    <div class="form-group">
+                        @foreach (var node in layer)
+                        {
+                            <button @onclick="async () => await NodeClick(node, index)" class="btn btn-block @(node.IsOpened ? "btn-info" : "btn-warning")">@(node.Name)</button>
+                        }
+                    </div>
+                }
+
+                @if (!isAdding[i] && (layer?.Any() == true || i == 0))
+                {
+                    <button class="btn btn-primary btn-block" type="submit" @onclick="() => StartAddingAsync(index)">+</button>
+                }
+
+                @if (isAdding[i])
+                {
+                    <form @onsubmit="() => Add(newNodeName, index)">
+                        <div class="form-group">
+                            @foreach (var item in advice)
+                            {
+                                if (!string.IsNullOrEmpty(item))
+                                {
+                                    <button class="btn btn-success btn-block" type="button" @onclick="() => Add(item, index)">@item</button>
+
+                                }
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <input @bind="newNodeName" type="text" class="form-control" required autofocus>
+                        </div>
+
+                        <div class="form-group">
+                            <button class="btn btn-outline-secondary btn-block" type="submit">Add</button>
+                            <button class="btn btn-outline-secondary btn-block" type="button" @onclick="() => Cancel(index)">Cancel</button>
+                        </div>
+                    </form>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code
+{
+    private string newNodeName;
+    private IEnumerable<string> advice;
+
+    private IEnumerable<NodeModel> mindMaps = Enumerable.Empty<NodeModel>();
+
+    private IList<IEnumerable<NodeModel>> nodeLayers = new IEnumerable<NodeModel>[Constants.MaxDepth];
+    private IList<bool> isAdding = new bool[Constants.MaxDepth];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            mindMaps = await HttpClient.GetFromJsonAsync<IEnumerable<NodeModel>>($"api/MindMap");
+
+            nodeLayers[0] = mindMaps;
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+
+    private async Task Add(string itemName, int targetLayer)
+    {
+        var path = GetPath(targetLayer);
+        var ids = path.Select(x => x.Id);
+
+        var request = new CreateItemRequestModel { NewItemName = itemName, Path = ids };
+
+        var newNodeMessage = await HttpClient.PostAsJsonAsync("api/MindMap", request);
+        var newNode = await newNodeMessage.Content.ReadFromJsonAsync<NodeModel>();
+
+        if (nodeLayers[targetLayer] is null)
+        {
+            nodeLayers[targetLayer] = Enumerable.Repeat(newNode, 1);
+        }
+        else
+        {
+            nodeLayers[targetLayer] = nodeLayers[targetLayer].Append(newNode);
+        }
+
+        newNodeName = string.Empty;
+    }
+
+    private void Cancel(int level)
+    {
+        newNodeName = string.Empty;
+        isAdding[level] = false;
+    }
+
+    private async Task NodeClick(NodeModel node, int level)
+    {
+        if (node.Children.Any())
+        {
+            isAdding[level] = false;
+
+            if (node.IsOpened)
+            {
+                nodeLayers[level + 1] = Enumerable.Empty<NodeModel>();
+                node.IsOpened = false;
+
+                for (int i = level + 1; i < Constants.MaxDepth; i++)
+                {
+                    nodeLayers[i] = Enumerable.Empty<NodeModel>();
+                    isAdding[i] = false;
+                }
+            }
+            else
+            {
+                nodeLayers[level + 1] = node.Children;
+
+                for (int i = level + 2; i < Constants.MaxDepth; i++)
+                {
+                    nodeLayers[i] = Enumerable.Empty<NodeModel>();
+                    isAdding[i] = false;
+                }
+
+                foreach (var item in nodeLayers[level])
+                {
+                    item.IsOpened = false;
+                }
+
+                node.IsOpened = true;
+            }
+        }
+        else
+        {
+            var nextLevel = level + 1;
+            node.IsOpened = true;
+            await StartAddingAsync(nextLevel);
+        }
+    }
+
+    private async Task StartAddingAsync(int index)
+    {
+        var path = GetPath(index);
+        var request = new AdviceRequestModel { Parents = path.Select(x => x.Name) };
+        var adviceMessage = await HttpClient.PostAsJsonAsync($"api/GetAdvice", request);
+        advice = await adviceMessage.Content.ReadFromJsonAsync<IEnumerable<string>>();
+
+        for (int i = 0; i < isAdding.Count; i++)
+        {
+            isAdding[i] = false;
+        }
+
+        isAdding[index] = true;
+    }
+
+    private IEnumerable<NodeModel> GetPath(int level)
+    {
+        var openPath = nodeLayers.Select(layer => layer.SingleOrDefault(node => node.IsOpened));
+        var pathToItem = openPath.Take(level);
+        return pathToItem;
+    }
+}
