@@ -85,7 +85,7 @@ namespace Neodenit.MindMaker.Web.Server.Controllers
             return nodeModel;
         }
 
-        [HttpDelete]
+        [HttpPost("Delete")]
         public async Task DeleteAsync([FromBody] DeleteItemRequestModel request)
         {
             if (request.Path.Count() > 1)
