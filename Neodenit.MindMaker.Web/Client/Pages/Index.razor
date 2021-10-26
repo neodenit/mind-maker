@@ -181,7 +181,7 @@
     private async Task StartAddingAsync(int index)
     {
         var path = GetPath(index);
-        var request = new AdviceRequestModel { Parents = path.Select(x => x.Name) };
+        var request = new AdviceRequestModel { Parents = path.Select(x => x.Name), Root = path.FirstOrDefault() };
         var adviceMessage = await HttpClient.PostAsJsonAsync($"api/GetAdvice", request);
         advice = await adviceMessage.Content.ReadFromJsonAsync<IEnumerable<string>>();
 

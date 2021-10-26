@@ -11,5 +11,9 @@
         string[] StopSequences { get; set; }
 
         double Temperature { get; set; }
+
+        string NodeSeparator { get; set; }
+
+        string BlockSeparator { get; set; }
     }
 }

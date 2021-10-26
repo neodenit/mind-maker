@@ -11,5 +11,9 @@
         public int NumOutputs { get; set; }
 
         public string[] StopSequences { get; set; }
+
+        public string NodeSeparator { get; set; }
+
+        public string BlockSeparator { get; set; }
     }
 }

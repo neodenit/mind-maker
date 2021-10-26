@@ -9,7 +9,7 @@ namespace Neodenit.MindMaker.Web.Server
         {
             CreateMap<AdviceRequestModel, AdviceRequestDTO>();
 
-            CreateMap<NodeDTO, NodeModel>();
+            CreateMap<NodeModel, NodeDTO>().ReverseMap();
 
             CreateMap<CreateItemRequestModel, CreateMindMapRequestDTO>();
             CreateMap<CreateItemRequestModel, CreateNodeRequestDTO>();

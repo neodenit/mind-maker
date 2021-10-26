@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -28,11 +29,17 @@ namespace Neodenit.MindMaker.Services.GPT3
             logger.LogInformation(nameof(GetAdvice));
 
             var request = await JsonSerializer.DeserializeAsync<AdviceRequestDTO>(req.Body);
-            var prompt = string.Join(Constants.NewLine, request.Parents) + Constants.NewLine;
 
-            OpenAIAPI api = new (APIAuthentication.LoadFromEnv(), new Engine(settings.Engine));
+            IEnumerable<IEnumerable<string>> branches = GetBranches(request.Root);
+            var textBranches = branches.Select(b => string.Join(settings.NodeSeparator, b));
+            var context = string.Join(settings.BlockSeparator, textBranches);
+            var prompt = string.Join(settings.NodeSeparator, request.Parents);
 
-            CompletionResult completionResult = await api.Completions.CreateCompletionAsync(prompt, settings.MaxTokens, settings.Temperature, numOutputs: settings.NumOutputs, stopSequences: settings.StopSequences);
+            var fullPrompt = context + settings.BlockSeparator + prompt + settings.NodeSeparator;
+
+            OpenAIAPI api = new(APIAuthentication.LoadFromEnv(), new Engine(settings.Engine));
+
+            CompletionResult completionResult = await api.Completions.CreateCompletionAsync(fullPrompt, settings.MaxTokens, settings.Temperature, numOutputs: settings.NumOutputs, stopSequences: settings.StopSequences);
 
             var resuts = completionResult.Completions.Select(c => c.Text);
 
@@ -40,6 +47,31 @@ namespace Neodenit.MindMaker.Services.GPT3
 
             await response.WriteAsJsonAsync(resuts);
             return response;
+        }
+
+        private IEnumerable<IEnumerable<string>> GetBranches(NodeDTO node) =>
+            GetBranches(node, Enumerable.Empty<string>());
+
+        private IEnumerable<IEnumerable<string>> GetBranches(NodeDTO node, IEnumerable<string> acc)
+        {
+            var newAcc = acc.Append(node.Name);
+
+            if (node.Children.Any())
+            {
+                foreach (var subNode in node.Children)
+                {
+                    var branches = GetBranches(subNode, newAcc);
+
+                    foreach (var branch in branches)
+                    {
+                        yield return branch;
+                    }
+                }
+            }
+            else
+            {
+                yield return newAcc;
+            }
         }
     }
 }
