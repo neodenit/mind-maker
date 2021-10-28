@@ -15,35 +15,35 @@
             var index = i;
 
             <div class="col-sm">
-                @if (layer?.Any() == true)
+                @if (HasNodes(i))
                 {
                     <div class="form-group">
                         @foreach (var node in layer)
                         {
-                            <button @onclick="async () => await NodeClick(node, index)" class="btn btn-block @(node.IsOpened ? "btn-info" : "btn-warning")">@(node.Name)</button>
+                            <button @onclick="() => NodeClickAsync(node, index)" class="btn btn-block @GetNodeStyle(i, node)">@(node.Name)</button>
                         }
                     </div>
                 }
 
-                @if (!isAdding[i] && (layer?.Any() == true || i == 0))
+                @if (IsLoaded() && !isAdding[i] && (HasNodes(i) || i == 0))
                 {
                     <button class="btn btn-primary btn-block" type="submit" @onclick="() => StartAddingAsync(index)">+</button>
 
-                    if (layer?.Any(x => x.IsOpened) == true)
+                    if (IsOpened(i))
                     {
-                        <button class="btn btn-danger btn-block" type="button" @onclick="async () => await DeleteAsync(index)">Delete</button>
+                        <button class="btn btn-danger btn-block" type="button" @onclick="() => DeleteAsync(index)">Delete</button>
                     }
                 }
 
                 @if (isAdding[i])
                 {
-                    <form @onsubmit="() => Add(newNodeName, index)">
+                    <form @onsubmit="() => AddAsync(newNodeName, index)">
                         <div class="form-group">
                             @foreach (var item in advice)
                             {
                                 if (!string.IsNullOrEmpty(item))
                                 {
-                                    <button class="btn btn-success btn-block" type="button" @onclick="() => Add(item, index)">@item</button>
+                                    <button class="btn btn-success btn-block" type="button" @onclick="() => AddAsync(item, index)">@item</button>
                                 }
                             }
                         </div>
@@ -87,7 +87,7 @@
         }
     }
 
-    private async Task Add(string itemName, int targetLayer)
+    private async Task AddAsync(string itemName, int targetLayer)
     {
         var path = GetPath(targetLayer);
         var ids = path.Select(x => x.Id);
@@ -120,7 +120,7 @@
         }
     }
 
-    private async Task NodeClick(NodeModel node, int level)
+    private async Task NodeClickAsync(NodeModel node, int level)
     {
         if (node.Children.Any())
         {
@@ -170,12 +170,56 @@
         }
     }
 
+    private bool IsOpened(int level)
+    {
+        var result = nodeLayers[level]?.Any(x => x.IsOpened) == true;
+        return result;
+    }
+
+    private string GetNodeStyle(int level, NodeModel node)
+    {
+        if (!IsOpened(level))
+        {
+            return "btn-warning";
+        }
+        else
+        {
+            if (node.IsOpened)
+            {
+                return "btn-warning";
+            }
+            else
+            {
+                if (level == 0)
+                {
+                    return "d-none";
+                }
+                else
+                {
+                    return "btn-light";
+                }
+            }
+        }
+    }
+
     private void StopAdding()
     {
         for (int i = 0; i < isAdding.Count; i++)
         {
             isAdding[i] = false;
         }
+    }
+
+    private bool HasNodes(int level)
+    {
+        var result = nodeLayers[level]?.Any() == true;
+        return result;
+    }
+
+    private bool IsLoaded()
+    {
+        var result = nodeLayers[0] != null;
+        return result;
     }
 
     private async Task StartAddingAsync(int index)
