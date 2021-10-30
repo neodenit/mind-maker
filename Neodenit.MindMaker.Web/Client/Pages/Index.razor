@@ -18,20 +18,32 @@
                 @if (HasNodes(i))
                 {
                     <div class="form-group">
+
                         @foreach (var node in layer)
                         {
-                            <button @onclick="() => NodeClickAsync(node, index)" class="btn btn-block @GetNodeStyle(i, node)">@(node.Name)</button>
+                            <button @onclick="() => NodeClickAsync(node, index)" class="@GetNodeStyle(i, node)">@(node.Name)</button>
                         }
+
+                    </div>
+                }
+
+                @if (i == 0 && !IsLoaded())
+                {
+                    <div class="alert alert-warning" role="alert">
+                        Loading mind maps...
                     </div>
                 }
 
                 @if (IsLoaded() && !isAdding[i] && (HasNodes(i) || i == 0))
                 {
-                    <button class="btn btn-primary btn-block" type="submit" @onclick="() => StartAddingAsync(index)">+</button>
+                    if (!(i == 0 && IsOpened(i)))
+                    {
+                        <button class="btn btn-outline-primary btn-block" type="submit" @onclick="() => StartAddingAsync(index)">+</button>
+                    }
 
                     if (IsOpened(i))
                     {
-                        <button class="btn btn-danger btn-block" type="button" @onclick="() => DeleteAsync(index)">Delete</button>
+                        <button class="btn btn-outline-danger btn-block" type="button" @onclick="() => DeleteAsync(index)">Delete</button>
                     }
                 }
 
@@ -39,12 +51,21 @@
                 {
                     <form @onsubmit="() => AddAsync(newNodeName, index)">
                         <div class="form-group">
-                            @foreach (var item in advice)
+                            @if (advice is not null)
                             {
-                                if (!string.IsNullOrEmpty(item))
+                                foreach (var item in advice)
                                 {
-                                    <button class="btn btn-success btn-block" type="button" @onclick="() => AddAsync(item, index)">@item</button>
+                                    if (!string.IsNullOrEmpty(item))
+                                    {
+                                        <button class="btn btn-success btn-block" type="button" @onclick="() => AddAsync(item, index)">@item</button>
+                                    }
                                 }
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning" role="alert">
+                                    Loading advice...
+                                </div>
                             }
                         </div>
 
@@ -53,11 +74,12 @@
                         </div>
 
                         <div class="form-group">
-                            <button class="btn btn-outline-secondary btn-block" type="submit">Add</button>
+                            <button class="btn btn-outline-primary btn-block" type="submit">Add</button>
                             <button class="btn btn-outline-secondary btn-block" type="button" @onclick="() => Cancel(index)">Cancel</button>
                         </div>
                     </form>
                 }
+
             </div>
         }
     </div>
@@ -87,9 +109,9 @@
         }
     }
 
-    private async Task AddAsync(string itemName, int targetLayer)
+    private async Task AddAsync(string itemName, int level)
     {
-        var path = GetPath(targetLayer);
+        var path = GetPath(level);
         var ids = path.Select(x => x.Id);
 
         var request = new CreateItemRequestModel { NewItemName = itemName, Path = ids };
@@ -97,22 +119,30 @@
         var newNodeMessage = await HttpClient.PostAsJsonAsync("api/MindMap", request);
         var newNode = await newNodeMessage.Content.ReadFromJsonAsync<NodeModel>();
 
-        if (nodeLayers[targetLayer] is null)
+        if (nodeLayers[level] is null)
         {
-            nodeLayers[targetLayer] = Enumerable.Repeat(newNode, 1);
+            nodeLayers[level] = Enumerable.Repeat(newNode, 1);
         }
         else
         {
-            nodeLayers[targetLayer] = nodeLayers[targetLayer].Append(newNode);
+            nodeLayers[level] = nodeLayers[level].Append(newNode);
+        }
+
+        if (level > 0)
+        {
+            var parentNode = nodeLayers[level - 1].Single(x => x.IsOpened);
+            parentNode.Children = nodeLayers[level];
         }
 
         newNodeName = string.Empty;
+
+        StopAdding();
     }
 
     private void Cancel(int level)
     {
-        newNodeName = string.Empty;
         isAdding[level] = false;
+        newNodeName = string.Empty;
 
         if (level > 0 && !nodeLayers[level].Any())
         {
@@ -122,10 +152,10 @@
 
     private async Task NodeClickAsync(NodeModel node, int level)
     {
+        StopAdding();
+
         if (node.Children.Any())
         {
-            StopAdding();
-
             if (node.IsOpened)
             {
                 HideLayers(level + 1);
@@ -180,13 +210,13 @@
     {
         if (!IsOpened(level))
         {
-            return "btn-warning";
+            return "btn btn-block btn-warning";
         }
         else
         {
             if (node.IsOpened)
             {
-                return "btn-warning";
+                return "btn btn-block btn-warning";
             }
             else
             {
@@ -196,7 +226,7 @@
                 }
                 else
                 {
-                    return "btn-light";
+                    return "btn btn-block btn-light";
                 }
             }
         }
@@ -218,20 +248,22 @@
 
     private bool IsLoaded()
     {
-        var result = nodeLayers[0] != null;
+        var result = nodeLayers[0] is not null;
         return result;
     }
 
-    private async Task StartAddingAsync(int index)
+    private async Task StartAddingAsync(int level)
     {
-        var path = GetPath(index);
+        StopAdding();
+
+        advice = null;
+
+        isAdding[level] = true;
+
+        var path = GetPath(level);
         var request = new AdviceRequestModel { Parents = path.Select(x => x.Name), Root = path.FirstOrDefault() };
         var adviceMessage = await HttpClient.PostAsJsonAsync($"api/GetAdvice", request);
         advice = await adviceMessage.Content.ReadFromJsonAsync<IEnumerable<string>>();
-
-        StopAdding();
-
-        isAdding[index] = true;
     }
 
     private IEnumerable<NodeModel> GetPath(int level)
@@ -243,6 +275,8 @@
 
     private async Task DeleteAsync(int level)
     {
+        StopAdding();
+
         var nodePath = GetPath(level + 1);
         var path = nodePath.Select(x => x.Id);
         var nodeId = path.Last();
