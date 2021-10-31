@@ -174,12 +174,17 @@
         }
         else
         {
-            var nextLevel = level + 1;
-            HideLayers(nextLevel);
             CloseNodes(level);
-
             node.IsOpened = true;
-            await StartAddingAsync(nextLevel);
+
+            var nextLevel = level + 1;
+
+            if (nextLevel < Constants.MaxDepth)
+            {
+                HideLayers(nextLevel);
+
+                await StartAddingAsync(nextLevel);
+            }
         }
     }
 
