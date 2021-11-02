@@ -50,24 +50,27 @@
                 @if (isAdding[i])
                 {
                     <form @onsubmit="() => AddAsync(newNodeName, index)">
-                        <div class="form-group">
-                            @if (advice is not null)
+                        @if (advice is not null)
+                        {
+                            if (advice.Any())
                             {
-                                foreach (var item in advice)
-                                {
-                                    if (!string.IsNullOrEmpty(item))
+                                <div class="form-group">
+                                    @foreach (var item in advice)
                                     {
-                                        <button class="btn btn-success btn-block" type="button" @onclick="() => AddAsync(item, index)">@item</button>
+                                        if (!string.IsNullOrEmpty(item))
+                                        {
+                                            <button class="btn btn-success btn-block" type="button" @onclick="() => AddAsync(item, index)">@item</button>
+                                        }
                                     }
-                                }
-                            }
-                            else
-                            {
-                                <div class="alert alert-warning" role="alert">
-                                    Loading advice...
                                 </div>
                             }
-                        </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning" role="alert">
+                                Loading advice...
+                            </div>
+                        }
 
                         <div class="form-group">
                             <input @bind="newNodeName" type="text" class="form-control" required autofocus>
@@ -268,7 +271,18 @@
         var path = GetPath(level);
         var request = new AdviceRequestModel { Parents = path.Select(x => x.Name), Root = path.FirstOrDefault() };
         var adviceMessage = await HttpClient.PostAsJsonAsync($"api/GetAdvice", request);
-        advice = await adviceMessage.Content.ReadFromJsonAsync<IEnumerable<string>>();
+        var adviceOptions = await adviceMessage.Content.ReadFromJsonAsync<IEnumerable<string>>();
+
+        if (HasNodes(level))
+        {
+            var layer = nodeLayers[level];
+
+            advice = adviceOptions.Where(ac => !layer.Any(node => node.Name == ac));
+        }
+        else
+        {
+            advice = adviceOptions;
+        }
     }
 
     private IEnumerable<NodeModel> GetPath(int level)
