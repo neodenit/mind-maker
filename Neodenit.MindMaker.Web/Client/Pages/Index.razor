@@ -4,6 +4,7 @@
 @using Neodenit.MindMaker.Web.Shared
 
 @inject HttpClient HttpClient
+@inject Settings Settings
 
 <div class="container-fluid">
     <h1>Mind Maps</h1>
@@ -95,13 +96,16 @@
 
     private IEnumerable<NodeModel> mindMaps = Enumerable.Empty<NodeModel>();
 
-    private IList<IEnumerable<NodeModel>> nodeLayers = new IEnumerable<NodeModel>[Constants.MaxDepth];
-    private IList<bool> isAdding = new bool[Constants.MaxDepth];
+    private IList<IEnumerable<NodeModel>> nodeLayers;
+    private IList<bool> isAdding;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            nodeLayers = new IEnumerable<NodeModel>[Settings.MaxDepth];
+            isAdding = new bool[Settings.MaxDepth];
+
             mindMaps = await HttpClient.GetFromJsonAsync<IEnumerable<NodeModel>>($"api/MindMap");
 
             nodeLayers[0] = mindMaps;
@@ -182,7 +186,7 @@
 
             var nextLevel = level + 1;
 
-            if (nextLevel < Constants.MaxDepth)
+            if (nextLevel < Settings.MaxDepth)
             {
                 HideLayers(nextLevel);
 
@@ -193,7 +197,7 @@
 
     private void HideLayers(int startingLevel)
     {
-        for (int i = startingLevel; i < Constants.MaxDepth; i++)
+        for (int i = startingLevel; i < Settings.MaxDepth; i++)
         {
             nodeLayers[i] = Enumerable.Empty<NodeModel>();
             isAdding[i] = false;

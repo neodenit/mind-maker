@@ -1,13 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Neodenit.MindMaker.Web.Client
 {
@@ -21,8 +18,11 @@ namespace Neodenit.MindMaker.Web.Client
             builder.Services.AddHttpClient("Neodenit.MindMaker.Web.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
                 .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
 
-            // Supply HttpClient instances that include access tokens when making requests to the server project
             builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Neodenit.MindMaker.Web.ServerAPI"));
+
+            Settings settings = new();
+            builder.Configuration.GetSection("Settings").Bind(settings);
+            builder.Services.AddSingleton(settings);
 
             builder.Services.AddApiAuthorization();
 
