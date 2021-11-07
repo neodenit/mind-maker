@@ -1,19 +1,11 @@
 ﻿namespace Neodenit.MindMaker.Services.GPT3
 {
-    public class Settings : ISettings
+    public class Settings
     {
-        public string Engine { get; set; }
+        public Parameters Default { get; set; }
 
-        public int MaxTokens { get; set; }
+        public Parameters Branches { get; set; }
 
-        public double Temperature { get; set; }
-
-        public int NumOutputs { get; set; }
-
-        public string[] StopSequences { get; set; }
-
-        public string NodeSeparator { get; set; }
-
-        public string BlockSeparator { get; set; }
+        public Parameters SubBranches { get; set; }
     }
 }
