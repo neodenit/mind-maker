@@ -9,7 +9,7 @@ namespace Neodenit.MindMaker.Services.MindMapping
     {
         public static void Main()
         {
-            var config = new ConfigurationBuilder().AddJsonFile("local.settings.json").Build();
+            var config = new ConfigurationBuilder().AddJsonFile("local.settings.json", true).Build();
 
             var host = new HostBuilder()
                 .ConfigureFunctionsWorkerDefaults()

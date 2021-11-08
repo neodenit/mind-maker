@@ -7,5 +7,7 @@ namespace Neodenit.MindMaker.Services.GPT3.Models
         public IEnumerable<string> Parents { get; set; }
 
         public NodeDTO Root { get; set; }
+
+        public ConverterType ConverterType { get; set; }
     }
 }

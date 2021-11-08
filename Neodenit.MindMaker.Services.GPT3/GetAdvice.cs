@@ -15,11 +15,13 @@ namespace Neodenit.MindMaker.Services.GPT3
 {
     public class GetAdvice
     {
-        private readonly IBranchConverter branchRequestHelper;
+        private readonly IBranchConverter branchConverter;
+        private readonly ISubBranchConverter subBranchConverter;
 
-        public GetAdvice(IBranchConverter branchRequestHelper)
+        public GetAdvice(IBranchConverter branchConverter, ISubBranchConverter subBranchConverter)
         {
-            this.branchRequestHelper = branchRequestHelper ?? throw new ArgumentNullException(nameof(branchRequestHelper));
+            this.branchConverter = branchConverter ?? throw new ArgumentNullException(nameof(branchConverter));
+            this.subBranchConverter = subBranchConverter ?? throw new ArgumentNullException(nameof(subBranchConverter));
         }
 
         [Function(nameof(GetAdvice))]
@@ -35,7 +37,8 @@ namespace Neodenit.MindMaker.Services.GPT3
                 var request = await JsonSerializer.DeserializeAsync<AdviceRequestDTO>(req.Body);
                 var response = req.CreateResponse();
 
-                var settings = branchRequestHelper.GetParameters(request.Root, request.Parents);
+                var converter = GetConverter(request.ConverterType);
+                var settings = converter.GetParameters(request.Root, request.Parents);
                 var parameters = settings.Params;
 
                 OpenAIAPI api = new(APIAuthentication.LoadFromEnv(), new Engine(settings.Params.Engine));
@@ -57,7 +60,15 @@ namespace Neodenit.MindMaker.Services.GPT3
             }
         }
 
-        private void LogRequest(ILogger logger, string request, IEnumerable<string> response, Request settings)
+        private IConverter GetConverter(ConverterType converterType) =>
+            converterType switch
+            {
+                ConverterType.Branch => branchConverter,
+                ConverterType.SubBranch => subBranchConverter,
+                _ => throw new NotImplementedException()
+            };
+
+        private static void LogRequest(ILogger logger, string request, IEnumerable<string> response, Request settings)
         {
             logger.LogInformation(
                 JsonSerializer.Serialize(
