@@ -7,6 +7,19 @@
 @inject Settings Settings
 
 <div class="container-fluid">
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <label for="mode" class="input-group-text">Mode: </label>
+        </div>
+
+        <select id="mode" class="form-control" @bind="@mode">
+            @foreach (var modeName in Enum.GetValues(typeof(Mode)))
+            {
+                <option value="@modeName">@modeName</option>
+            }
+        </select>
+    </div>
+
     <h1>Mind Maps</h1>
 
     <div class="row">
@@ -91,6 +104,8 @@
 
 @code
 {
+    private Mode mode;
+
     private string newNodeName;
     private IEnumerable<string> advice;
 
@@ -273,7 +288,7 @@
         isAdding[level] = true;
 
         var path = GetPath(level);
-        var request = new AdviceRequestModel { Parents = path.Select(x => x.Name), Root = path.FirstOrDefault() };
+        var request = new AdviceRequestModel { Parents = path.Select(x => x.Name), Root = path.FirstOrDefault(), Mode = mode };
         var adviceMessage = await HttpClient.PostAsJsonAsync($"api/GetAdvice", request);
         var adviceOptions = await adviceMessage.Content.ReadFromJsonAsync<IEnumerable<string>>();
 

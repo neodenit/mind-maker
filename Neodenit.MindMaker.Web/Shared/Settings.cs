@@ -1,4 +1,4 @@
-﻿namespace Neodenit.MindMaker.Web.Client
+﻿namespace Neodenit.MindMaker.Web.Shared
 {
     public class Settings
     {

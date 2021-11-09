@@ -8,6 +8,6 @@ namespace Neodenit.MindMaker.Services.GPT3.Models
 
         public NodeDTO Root { get; set; }
 
-        public ConverterType ConverterType { get; set; }
+        public ConverterType Mode { get; set; }
     }
 }

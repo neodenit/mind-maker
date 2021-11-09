@@ -32,6 +32,7 @@ namespace Neodenit.MindMaker.Services.GPT3.Converters
 
             var parameters = settings.Default.Clone();
 
+            parameters.TopP = settings.Branches.TopP;
             parameters.StopSequences = settings.Branches.StopSequences.Select(s => StringHelper.FixString(s)).ToArray();
 
             return new Request { Prompt = fullPrompt, Params = parameters };

@@ -37,13 +37,13 @@ namespace Neodenit.MindMaker.Services.GPT3
                 var request = await JsonSerializer.DeserializeAsync<AdviceRequestDTO>(req.Body);
                 var response = req.CreateResponse();
 
-                var converter = GetConverter(request.ConverterType);
+                var converter = GetConverter(request.Mode);
                 var settings = converter.GetParameters(request.Root, request.Parents);
                 var parameters = settings.Params;
 
                 OpenAIAPI api = new(APIAuthentication.LoadFromEnv(), new Engine(settings.Params.Engine));
 
-                CompletionResult completionResult = await api.Completions.CreateCompletionAsync(settings.Prompt, settings.Params.MaxTokens, parameters.Temperature, parameters.TopP, parameters.NumOutputs, parameters.PresencePenalty, parameters.FrequencyPenalty, stopSequences: parameters.StopSequences);
+                CompletionResult completionResult = await api.Completions.CreateCompletionAsync(settings.Prompt, parameters.MaxTokens, parameters.Temperature, parameters.TopP, parameters.NumOutputs, parameters.PresencePenalty, parameters.FrequencyPenalty, stopSequences: parameters.StopSequences);
 
                 var resuts = completionResult.Completions.Select(c => c.Text.Trim()).Distinct();
 
@@ -79,7 +79,7 @@ namespace Neodenit.MindMaker.Services.GPT3
                         settings.Params.Temperature,
                         settings.Params.TopP,
                         settings.Params.MaxTokens,
-                        StopSequences = settings.Params.StopSequences,
+                        settings.Params.StopSequences,
                         Request = request,
                         Response = response
                     },

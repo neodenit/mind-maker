@@ -7,5 +7,7 @@ namespace Neodenit.MindMaker.Web.Shared
         public IEnumerable<string> Parents { get; set; }
 
         public NodeModel Root { get; set; }
+
+        public Mode Mode { get; set; }
     }
 }
