@@ -17,27 +17,18 @@ namespace Neodenit.MindMaker.Services.GPT3.Converters
 
         public Request GetParameters(NodeDTO node, IEnumerable<string> parents)
         {
-            var promptStart = StringHelper.FixString(settings.Branches.PromptStart);
-            var promptEnd = StringHelper.FixString(settings.Branches.PromptEnd);
-            var nodeSeparator = StringHelper.FixString(settings.Branches.NodeSeparator);
-            var blockSeparator = StringHelper.FixString(settings.Branches.BlockSeparator);
+            Parameters parameters = ParametersHelper.GetParameters(settings.Default, settings.Branches);
 
             IEnumerable<IEnumerable<string>> branches = GetBranches(node);
 
-            var textBranches = branches.Select(b => string.Join(nodeSeparator, b));
-            var context = string.Join(blockSeparator, textBranches);
-            var prompt = string.Join(nodeSeparator, parents);
+            var textBranches = branches.Select(b => string.Join(parameters.NodeSeparator, b));
+            var context = string.Join(parameters.BlockSeparator, textBranches);
+            var prompt = string.Join(parameters.NodeSeparator, parents);
 
-            var fullPrompt = promptStart + context + blockSeparator + prompt + promptEnd;
-
-            var parameters = settings.Default.Clone();
-
-            parameters.TopP = settings.Branches.TopP;
-            parameters.StopSequences = settings.Branches.StopSequences.Select(s => StringHelper.FixString(s)).ToArray();
+            var fullPrompt = parameters.PromptStart + context + parameters.BlockSeparator + prompt + parameters.PromptEnd;
 
             return new Request { Prompt = fullPrompt, Params = parameters };
         }
-
 
         public static IEnumerable<IEnumerable<string>> GetBranches(NodeDTO node) =>
             GetBranches(node, Enumerable.Empty<string>());
