@@ -1,6 +1,6 @@
 ﻿namespace Neodenit.MindMaker.Services.GPT3
 {
-    public class Request
+    public class OpenAIRequest
     {
         public string Prompt { get; set; }
 

@@ -4,7 +4,6 @@ namespace Neodenit.MindMaker.Services.GPT3.Helpers
 {
     public static class ParametersHelper
     {
-
         public static Parameters GetParameters(Parameters defaultParams, Parameters newParams)
         {
             var parameters = defaultParams.Clone();

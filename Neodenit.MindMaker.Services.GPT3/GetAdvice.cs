@@ -17,11 +17,13 @@ namespace Neodenit.MindMaker.Services.GPT3
     {
         private readonly IBranchConverter branchConverter;
         private readonly ISubBranchConverter subBranchConverter;
+        private readonly ISimpleBranchConverter simpleBranchConverter;
 
-        public GetAdvice(IBranchConverter branchConverter, ISubBranchConverter subBranchConverter)
+        public GetAdvice(IBranchConverter branchConverter, ISubBranchConverter subBranchConverter, ISimpleBranchConverter simpleBranchConverter)
         {
             this.branchConverter = branchConverter ?? throw new ArgumentNullException(nameof(branchConverter));
             this.subBranchConverter = subBranchConverter ?? throw new ArgumentNullException(nameof(subBranchConverter));
+            this.simpleBranchConverter = simpleBranchConverter ?? throw new ArgumentNullException(nameof(simpleBranchConverter));
         }
 
         [Function(nameof(GetAdvice))]
@@ -38,16 +40,16 @@ namespace Neodenit.MindMaker.Services.GPT3
                 var response = req.CreateResponse();
 
                 var converter = GetConverter(request.Mode);
-                var settings = converter.GetParameters(request.Root, request.Parents);
-                var parameters = settings.Params;
+                var openAIRequest = converter.GetParameters(request.Root, request.Parents);
+                var parameters = openAIRequest.Params;
 
-                OpenAIAPI api = new(APIAuthentication.LoadFromEnv(), new Engine(settings.Params.Engine));
+                OpenAIAPI api = new(APIAuthentication.LoadFromEnv(), new Engine(openAIRequest.Params.Engine));
 
-                CompletionResult completionResult = await api.Completions.CreateCompletionAsync(settings.Prompt, parameters.MaxTokens, parameters.Temperature, parameters.TopP, parameters.NumOutputs, parameters.PresencePenalty, parameters.FrequencyPenalty, stopSequences: parameters.StopSequences);
+                CompletionResult completionResult = await api.Completions.CreateCompletionAsync(openAIRequest.Prompt, parameters.MaxTokens, parameters.Temperature, parameters.TopP, parameters.NumOutputs, parameters.PresencePenalty, parameters.FrequencyPenalty, stopSequences: parameters.StopSequences);
 
                 var resuts = completionResult.Completions.Select(c => c.Text.Trim()).Distinct();
 
-                LogRequest(logger, settings.Prompt, resuts, settings);
+                LogRequest(logger, openAIRequest, resuts);
 
                 await response.WriteAsJsonAsync(resuts);
 
@@ -65,10 +67,11 @@ namespace Neodenit.MindMaker.Services.GPT3
             {
                 ConverterType.Branch => branchConverter,
                 ConverterType.SubBranch => subBranchConverter,
+                ConverterType.SimpleBranch => simpleBranchConverter,
                 _ => throw new NotImplementedException()
             };
 
-        private static void LogRequest(ILogger logger, string request, IEnumerable<string> response, Request settings)
+        private static void LogRequest(ILogger logger, OpenAIRequest settings, IEnumerable<string> response)
         {
             logger.LogInformation(
                 JsonSerializer.Serialize(
@@ -80,7 +83,7 @@ namespace Neodenit.MindMaker.Services.GPT3
                         settings.Params.TopP,
                         settings.Params.MaxTokens,
                         settings.Params.StopSequences,
-                        Request = request,
+                        Request = settings.Prompt,
                         Response = response
                     },
                     new JsonSerializerOptions

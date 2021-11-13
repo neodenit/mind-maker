@@ -20,6 +20,7 @@ namespace Neodenit.MindMaker.Services.GPT3
                 {
                     services.AddTransient<IBranchConverter, BranchConverter>();
                     services.AddTransient<ISubBranchConverter, SubBranchConverter>();
+                    services.AddTransient<ISimpleBranchConverter, SimpleBranchConverter>();
                     services.AddSingleton(settings);
                 })
                 .Build();

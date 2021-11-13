@@ -15,19 +15,15 @@ namespace Neodenit.MindMaker.Services.GPT3.Converters
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        public Request GetParameters(NodeDTO node, IEnumerable<string> parents)
+        public OpenAIRequest GetParameters(NodeDTO node, IEnumerable<string> parents)
         {
-            Parameters parameters = ParametersHelper.GetParameters(settings.Default, settings.Branches);
+            Parameters parameters = ParametersHelper.GetParameters(settings.Default, settings.SubBranches);
 
             IEnumerable<IEnumerable<string>> branches = GetSubBranches(node);
 
-            var textBranches = branches.Select(b => string.Join(parameters.NodeSeparator, b));
-            var context = string.Join(parameters.BlockSeparator, textBranches);
-            var prompt = string.Join(parameters.NodeSeparator, parents);
+            string fullPrompt = BlockPromptHelper.GetPrompt(branches, parents, parameters);
 
-            var fullPrompt = parameters.PromptStart + context + parameters.BlockSeparator + prompt + parameters.PromptEnd;
-
-            return new Request { Prompt = fullPrompt, Params = parameters };
+            return new OpenAIRequest { Prompt = fullPrompt, Params = parameters };
         }
 
         public static IEnumerable<IEnumerable<string>> GetSubBranches(NodeDTO node) =>

@@ -3,6 +3,7 @@
     public enum Mode
     {
         Branch,
-        SubBranch
+        SubBranch,
+        SimpleBranch
     }
 }

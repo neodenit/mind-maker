@@ -8,26 +8,26 @@ namespace Neodenit.MindMaker.Services.GPT3.Converters
 {
     public class BranchConverter : IBranchConverter
     {
-        private readonly Settings settings;
+        internal Settings settings;
+        protected Parameters newParameters;
+
+        public BranchConverter() { }
 
         public BranchConverter(Settings settings)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            newParameters = settings.Branches ?? throw new ArgumentNullException(nameof(settings.Branches));
         }
 
-        public Request GetParameters(NodeDTO node, IEnumerable<string> parents)
+        public OpenAIRequest GetParameters(NodeDTO node, IEnumerable<string> parents)
         {
-            Parameters parameters = ParametersHelper.GetParameters(settings.Default, settings.Branches);
+            Parameters parameters = ParametersHelper.GetParameters(settings.Default, newParameters);
 
             IEnumerable<IEnumerable<string>> branches = GetBranches(node);
 
-            var textBranches = branches.Select(b => string.Join(parameters.NodeSeparator, b));
-            var context = string.Join(parameters.BlockSeparator, textBranches);
-            var prompt = string.Join(parameters.NodeSeparator, parents);
+            string fullPrompt = BlockPromptHelper.GetPrompt(branches, parents, parameters);
 
-            var fullPrompt = parameters.PromptStart + context + parameters.BlockSeparator + prompt + parameters.PromptEnd;
-
-            return new Request { Prompt = fullPrompt, Params = parameters };
+            return new OpenAIRequest { Prompt = fullPrompt, Params = parameters };
         }
 
         public static IEnumerable<IEnumerable<string>> GetBranches(NodeDTO node) =>

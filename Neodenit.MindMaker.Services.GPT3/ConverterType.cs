@@ -3,6 +3,7 @@
     public enum ConverterType
     {
         Branch,
-        SubBranch
+        SubBranch,
+        SimpleBranch
     }
 }
