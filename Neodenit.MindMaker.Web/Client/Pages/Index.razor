@@ -9,7 +9,7 @@
 <div class="container-fluid">
     <div class="input-group">
         <div class="input-group-prepend">
-            <label for="mode" class="input-group-text">Mode: </label>
+            <label for="mode" class="input-group-text">Mode</label>
         </div>
 
         <select id="mode" class="form-control" @bind="@mode">
@@ -23,9 +23,9 @@
     <h1>Mind Maps</h1>
 
     <div class="row">
-        @for (int i = 0; i < nodeLayers.Count; i++)
+        @for (int i = 0; i < layers.Count; i++)
         {
-            var layer = nodeLayers[i];
+            var layer = layers[i];
             var index = i;
 
             <div class="col-sm">
@@ -48,7 +48,7 @@
                     </div>
                 }
 
-                @if (IsLoaded() && !isAdding[i] && (HasNodes(i) || i == 0))
+                @if (IsLoaded() && !isAdding[i] && !isEditing[i] && (HasNodes(i) || i == 0))
                 {
                     if (!(i == 0 && IsOpened(i)))
                     {
@@ -57,6 +57,7 @@
 
                     if (IsOpened(i))
                     {
+                        <button class="btn btn-outline-secondary btn-block" type="button" @onclick="() => StartEditing(index)">Edit</button>
                         <button class="btn btn-outline-danger btn-block" type="button" @onclick="() => DeleteAsync(index)">Delete</button>
                     }
                 }
@@ -87,11 +88,25 @@
                         }
 
                         <div class="form-group">
-                            <input @bind="newNodeName" type="text" class="form-control" required autofocus>
+                            <input @bind="newNodeName" type="text" class="form-control" required autofocus />
                         </div>
 
                         <div class="form-group">
                             <button class="btn btn-outline-primary btn-block" type="submit">Add</button>
+                            <button class="btn btn-outline-secondary btn-block" type="button" @onclick="() => Cancel(index)">Cancel</button>
+                        </div>
+                    </form>
+                }
+
+                @if (isEditing[i])
+                {
+                    <form @onsubmit="() => UpdateAsync(updatedNodeName, index)">
+                        <div class="form-group">
+                            <input @bind="updatedNodeName" type="text" class="form-control" required autofocus />
+                        </div>
+
+                        <div class="form-group">
+                            <button class="btn btn-outline-primary btn-block" type="submit">Update</button>
                             <button class="btn btn-outline-secondary btn-block" type="button" @onclick="() => Cancel(index)">Cancel</button>
                         </div>
                     </form>
@@ -107,23 +122,26 @@
     private Mode mode;
 
     private string newNodeName;
+    private string updatedNodeName;
     private IEnumerable<string> advice;
 
     private IEnumerable<NodeModel> mindMaps = Enumerable.Empty<NodeModel>();
 
-    private IList<IEnumerable<NodeModel>> nodeLayers;
+    private IList<IEnumerable<NodeModel>> layers;
     private IList<bool> isAdding;
+    private IList<bool> isEditing;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            nodeLayers = new IEnumerable<NodeModel>[Settings.MaxDepth];
+            layers = new IEnumerable<NodeModel>[Settings.MaxDepth];
             isAdding = new bool[Settings.MaxDepth];
+            isEditing = new bool[Settings.MaxDepth];
 
             mindMaps = await HttpClient.GetFromJsonAsync<IEnumerable<NodeModel>>($"api/MindMap");
 
-            nodeLayers[0] = mindMaps;
+            layers[0] = mindMaps;
         }
         catch (AccessTokenNotAvailableException exception)
         {
@@ -141,32 +159,33 @@
         var newNodeMessage = await HttpClient.PostAsJsonAsync("api/MindMap", request);
         var newNode = await newNodeMessage.Content.ReadFromJsonAsync<NodeModel>();
 
-        if (nodeLayers[level] is null)
+        if (layers[level] is null)
         {
-            nodeLayers[level] = Enumerable.Repeat(newNode, 1);
+            layers[level] = Enumerable.Repeat(newNode, 1);
         }
         else
         {
-            nodeLayers[level] = nodeLayers[level].Append(newNode);
+            layers[level] = layers[level].Append(newNode);
         }
 
         if (level > 0)
         {
-            var parentNode = nodeLayers[level - 1].Single(x => x.IsOpened);
-            parentNode.Children = nodeLayers[level];
+            var parentNode = layers[level - 1].Single(x => x.IsOpened);
+            parentNode.Children = layers[level];
         }
 
         newNodeName = string.Empty;
 
-        StopAdding();
+        StopEditing();
     }
 
     private void Cancel(int level)
     {
         isAdding[level] = false;
+        isEditing[level] = false;
         newNodeName = string.Empty;
 
-        if (level > 0 && !nodeLayers[level].Any())
+        if (level > 0 && !layers[level].Any())
         {
             CloseNodes(level - 1);
         }
@@ -174,38 +193,38 @@
 
     private async Task NodeClickAsync(NodeModel node, int level)
     {
-        StopAdding();
+        StopEditing();
 
-        if (node.Children.Any())
+        if (node.IsOpened)
         {
-            if (node.IsOpened)
-            {
-                HideLayers(level + 1);
+            HideLayers(level + 1);
 
-                node.IsOpened = false;
-            }
-            else
+            node.IsOpened = false;
+        }
+        else
+        {
+            if (node.Children.Any())
             {
-                nodeLayers[level + 1] = node.Children;
+                layers[level + 1] = node.Children;
 
                 HideLayers(level + 2);
                 CloseNodes(level);
 
                 node.IsOpened = true;
             }
-        }
-        else
-        {
-            CloseNodes(level);
-            node.IsOpened = true;
-
-            var nextLevel = level + 1;
-
-            if (nextLevel < Settings.MaxDepth)
+            else
             {
-                HideLayers(nextLevel);
+                CloseNodes(level);
+                node.IsOpened = true;
 
-                await StartAddingAsync(nextLevel);
+                var nextLevel = level + 1;
+
+                if (nextLevel < Settings.MaxDepth)
+                {
+                    HideLayers(nextLevel);
+
+                    await StartAddingAsync(nextLevel);
+                }
             }
         }
     }
@@ -214,14 +233,14 @@
     {
         for (int i = startingLevel; i < Settings.MaxDepth; i++)
         {
-            nodeLayers[i] = Enumerable.Empty<NodeModel>();
+            layers[i] = Enumerable.Empty<NodeModel>();
             isAdding[i] = false;
         }
     }
 
     private void CloseNodes(int level)
     {
-        foreach (var item in nodeLayers[level])
+        foreach (var item in layers[level])
         {
             item.IsOpened = false;
         }
@@ -229,7 +248,13 @@
 
     private bool IsOpened(int level)
     {
-        var result = nodeLayers[level]?.Any(x => x.IsOpened) == true;
+        var result = layers[level]?.Any(x => x.IsOpened) == true;
+        return result;
+    }
+
+    private NodeModel GetOpened(int level)
+    {
+        var result = layers[level].Single(x => x.IsOpened);
         return result;
     }
 
@@ -259,29 +284,30 @@
         }
     }
 
-    private void StopAdding()
+    private void StopEditing()
     {
         for (int i = 0; i < isAdding.Count; i++)
         {
             isAdding[i] = false;
+            isEditing[i] = false;
         }
     }
 
     private bool HasNodes(int level)
     {
-        var result = nodeLayers[level]?.Any() == true;
+        var result = layers[level]?.Any() == true;
         return result;
     }
 
     private bool IsLoaded()
     {
-        var result = nodeLayers[0] is not null;
+        var result = layers[0] is not null;
         return result;
     }
 
     private async Task StartAddingAsync(int level)
     {
-        StopAdding();
+        StopEditing();
 
         advice = null;
 
@@ -294,7 +320,7 @@
 
         if (HasNodes(level))
         {
-            var layer = nodeLayers[level];
+            var layer = layers[level];
 
             advice = adviceOptions.Where(ac => !layer.Any(node => node.Name == ac));
         }
@@ -306,14 +332,40 @@
 
     private IEnumerable<NodeModel> GetPath(int level)
     {
-        var openPath = nodeLayers.Select(layer => layer.SingleOrDefault(node => node.IsOpened));
+        var openPath = layers.Select(layer => layer.SingleOrDefault(node => node.IsOpened));
         var pathToItem = openPath.Take(level);
         return pathToItem;
     }
 
+    private void StartEditing(int level)
+    {
+        StopEditing();
+
+        var node = GetOpened(level);
+        updatedNodeName = node.Name;
+
+        isEditing[level] = true;
+    }
+
+    private async Task UpdateAsync(string updatedNodeName, int level)
+    {
+        var path = GetPath(level + 1);
+        var ids = path.Select(x => x.Id);
+
+        var request = new UpdateNodeRequestModel { UpdatedNodeName = updatedNodeName, Path = ids };
+
+        var newNodeMessage = await HttpClient.PutAsJsonAsync("api/MindMap", request);
+        var newNode = await newNodeMessage.Content.ReadFromJsonAsync<NodeModel>();
+
+        var node = GetOpened(level);
+        node.Name = newNode.Name;
+
+        StopEditing();
+    }
+
     private async Task DeleteAsync(int level)
     {
-        StopAdding();
+        StopEditing();
 
         var nodePath = GetPath(level + 1);
         var path = nodePath.Select(x => x.Id);
@@ -323,14 +375,14 @@
         var newNodeMessage = await HttpClient.PostAsJsonAsync("api/MindMap/Delete", request);
 
         HideLayers(level + 1);
-        nodeLayers[level] = nodeLayers[level].Where(x => x.Id != nodeId);
+        layers[level] = layers[level].Where(x => x.Id != nodeId);
 
         if (level > 0)
         {
-            var parent = nodeLayers[level - 1].Single(x => x.IsOpened);
+            var parent = layers[level - 1].Single(x => x.IsOpened);
             parent.Children = parent.Children.Where(x => x.Id != nodeId);
 
-            if (!nodeLayers[level].Any())
+            if (!layers[level].Any())
             {
                 CloseNodes(level - 1);
             }
