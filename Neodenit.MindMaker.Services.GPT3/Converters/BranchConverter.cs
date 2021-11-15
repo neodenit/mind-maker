@@ -8,7 +8,7 @@ namespace Neodenit.MindMaker.Services.GPT3.Converters
 {
     public class BranchConverter : IBranchConverter
     {
-        internal Settings settings;
+        protected Settings settings;
         protected Parameters newParameters;
 
         public BranchConverter() { }

@@ -4,6 +4,7 @@
     {
         Branch,
         SubBranch,
-        SimpleBranch
+        SimpleBranch,
+        SimpleSubBranch
     }
 }

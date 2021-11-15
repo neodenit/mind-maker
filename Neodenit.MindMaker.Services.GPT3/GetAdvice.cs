@@ -18,12 +18,18 @@ namespace Neodenit.MindMaker.Services.GPT3
         private readonly IBranchConverter branchConverter;
         private readonly ISubBranchConverter subBranchConverter;
         private readonly ISimpleBranchConverter simpleBranchConverter;
+        private readonly ISimpleSubBranchConverter simpleSubBranchConverter;
 
-        public GetAdvice(IBranchConverter branchConverter, ISubBranchConverter subBranchConverter, ISimpleBranchConverter simpleBranchConverter)
+        public GetAdvice(
+            IBranchConverter branchConverter,
+            ISubBranchConverter subBranchConverter,
+            ISimpleBranchConverter simpleBranchConverter,
+            ISimpleSubBranchConverter simpleSubBranchConverter)
         {
             this.branchConverter = branchConverter ?? throw new ArgumentNullException(nameof(branchConverter));
             this.subBranchConverter = subBranchConverter ?? throw new ArgumentNullException(nameof(subBranchConverter));
             this.simpleBranchConverter = simpleBranchConverter ?? throw new ArgumentNullException(nameof(simpleBranchConverter));
+            this.simpleSubBranchConverter = simpleSubBranchConverter ?? throw new ArgumentNullException(nameof(simpleSubBranchConverter));
         }
 
         [Function(nameof(GetAdvice))]
@@ -68,6 +74,7 @@ namespace Neodenit.MindMaker.Services.GPT3
                 ConverterType.Branch => branchConverter,
                 ConverterType.SubBranch => subBranchConverter,
                 ConverterType.SimpleBranch => simpleBranchConverter,
+                ConverterType.SimpleSubBranch => simpleSubBranchConverter,
                 _ => throw new NotImplementedException()
             };
 

@@ -8,16 +8,20 @@ namespace Neodenit.MindMaker.Services.GPT3.Converters
 {
     public class SubBranchConverter : ISubBranchConverter
     {
-        private readonly Settings settings;
+        protected Settings settings;
+        protected Parameters newParameters;
+
+        public SubBranchConverter() { }
 
         public SubBranchConverter(Settings settings)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            newParameters = settings.SubBranches ?? throw new ArgumentNullException(nameof(settings.SubBranches));
         }
 
         public OpenAIRequest GetParameters(NodeDTO node, IEnumerable<string> parents)
         {
-            Parameters parameters = ParametersHelper.GetParameters(settings.Default, settings.SubBranches);
+            Parameters parameters = ParametersHelper.GetParameters(settings.Default, newParameters);
 
             IEnumerable<IEnumerable<string>> branches = GetSubBranches(node);
 

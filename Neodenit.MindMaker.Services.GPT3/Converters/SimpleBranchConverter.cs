@@ -7,7 +7,7 @@ namespace Neodenit.MindMaker.Services.GPT3.Converters
         public SimpleBranchConverter(Settings settings)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            this.newParameters = settings.SimpleBranches ?? throw new ArgumentNullException(nameof(settings.SimpleBranches));
+            newParameters = settings.SimpleBranches ?? throw new ArgumentNullException(nameof(settings.SimpleBranches));
         }
     }
 }
