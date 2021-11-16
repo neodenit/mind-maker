@@ -1,13 +1,13 @@
 ﻿@page "/"
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Neodenit.MindMaker.Web.Shared
 
 @inject HttpClient HttpClient
 @inject Settings Settings
 
 <div class="container-fluid">
-    <div class="input-group">
+    <div class="input-group pb-3">
         <div class="input-group-prepend">
             <label for="mode" class="input-group-text">Mode</label>
         </div>
@@ -58,7 +58,6 @@
                     if (IsOpened(i))
                     {
                         <button class="btn btn-outline-secondary btn-block" type="button" @onclick="() => StartEditing(index)">Edit</button>
-                        <button class="btn btn-outline-danger btn-block" type="button" @onclick="() => DeleteAsync(index)">Delete</button>
                     }
                 }
 
@@ -107,6 +106,7 @@
 
                         <div class="form-group">
                             <button class="btn btn-outline-primary btn-block" type="submit">Update</button>
+                            <button class="btn btn-outline-danger btn-block" type="button" @onclick="() => DeleteAsync(index)">Delete</button>
                             <button class="btn btn-outline-secondary btn-block" type="button" @onclick="() => Cancel(index)">Cancel</button>
                         </div>
                     </form>
