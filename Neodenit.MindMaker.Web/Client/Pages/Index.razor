@@ -48,7 +48,7 @@
                     </div>
                 }
 
-                @if (IsLoaded() && !isAdding[i] && !isEditing[i] && (HasNodes(i) || i == 0))
+                @if (IsLoaded() && !isAdding[i] && !isEditing[i] && (HasNodes(i) || i == 0 || !Settings.EnableQuickAdding && IsOpened(i - 1)))
                 {
                     if (!(i == 0 && IsOpened(i)))
                     {
@@ -223,7 +223,10 @@
                 {
                     HideLayers(nextLevel);
 
-                    await StartAddingAsync(nextLevel);
+                    if (Settings.EnableQuickAdding)
+                    {
+                        await StartAddingAsync(nextLevel);
+                    }
                 }
             }
         }
@@ -238,11 +241,14 @@
         }
     }
 
-    private void CloseNodes(int level)
+    private void CloseNodes(int startingLevel)
     {
-        foreach (var item in layers[level])
+        for (var i = startingLevel; i < Settings.MaxDepth; i++)
         {
-            item.IsOpened = false;
+            foreach (var item in layers[i])
+            {
+                item.IsOpened = false;
+            }
         }
     }
 
