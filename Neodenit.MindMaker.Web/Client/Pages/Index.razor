@@ -35,7 +35,14 @@
 
                         @foreach (var node in layer)
                         {
-                            <button @onclick="() => NodeClickAsync(node, index)" class="@GetNodeStyle(i, node)">@(node.Name)</button>
+                            <button @onclick="() => NodeClickAsync(node, index)" class="@GetNodeStyle(i, node)">
+                                @node.Name
+
+                                @if (i > 0 && !node.IsOpened && node.Children.Any())
+                                {
+                                    <span class="badge badge-light float-right">@node.Children.Count()</span>
+                                }
+                            </button>
                         }
 
                     </div>
