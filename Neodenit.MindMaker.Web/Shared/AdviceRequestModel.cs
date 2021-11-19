@@ -9,5 +9,7 @@ namespace Neodenit.MindMaker.Web.Shared
         public NodeModel Root { get; set; }
 
         public Mode Mode { get; set; }
+
+        public int Creativity { get; set; }
     }
 }

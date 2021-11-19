@@ -7,15 +7,29 @@
 @inject Settings Settings
 
 <div class="container-fluid">
+
     <div class="input-group pb-3">
         <div class="input-group-prepend">
-            <label for="mode" class="input-group-text">Mode</label>
+            <label for="mode" class="input-group-text">Representation</label>
         </div>
 
         <select id="mode" class="form-control" @bind="@mode">
             @foreach (var modeName in Enum.GetValues(typeof(Mode)))
             {
                 <option value="@modeName">@modeName</option>
+            }
+        </select>
+    </div>
+
+    <div class="input-group pb-3">
+        <div class="input-group-prepend">
+            <label for="mode" class="input-group-text">Creativity</label>
+        </div>
+
+        <select id="mode" class="form-control" @bind="@creativityLevel">
+            @foreach (var item in Creativity.Levels)
+            {
+                <option value="@item">@item%</option>
             }
         </select>
     </div>
@@ -127,6 +141,7 @@
 @code
 {
     private Mode mode;
+    private int creativityLevel;
 
     private string newNodeName;
     private string updatedNodeName;
@@ -145,6 +160,8 @@
             layers = new IEnumerable<NodeModel>[Settings.MaxDepth];
             isAdding = new bool[Settings.MaxDepth];
             isEditing = new bool[Settings.MaxDepth];
+
+            creativityLevel = Creativity.DefaultLevel;
 
             mindMaps = await HttpClient.GetFromJsonAsync<IEnumerable<NodeModel>>($"api/MindMap");
 
@@ -327,7 +344,7 @@
         isAdding[level] = true;
 
         var path = GetPath(level);
-        var request = new AdviceRequestModel { Parents = path.Select(x => x.Name), Root = path.FirstOrDefault(), Mode = mode };
+        var request = new AdviceRequestModel { Parents = path.Select(x => x.Name), Root = path.FirstOrDefault(), Mode = mode, Creativity = creativityLevel };
         var adviceMessage = await HttpClient.PostAsJsonAsync($"api/GetAdvice", request);
         var adviceOptions = await adviceMessage.Content.ReadFromJsonAsync<IEnumerable<string>>();
 

@@ -7,7 +7,9 @@ namespace Neodenit.MindMaker.Web.Server
     {
         public MappingProfile()
         {
-            CreateMap<AdviceRequestModel, AdviceRequestDTO>();
+            CreateMap<AdviceRequestModel, AdviceRequestDTO>().ForMember(
+                dest => dest.Randomness,
+                opts => opts.MapFrom(x => x.Creativity / 100.0));
 
             CreateMap<NodeModel, NodeDTO>().ReverseMap();
 

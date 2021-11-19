@@ -48,16 +48,17 @@ namespace Neodenit.MindMaker.Services.GPT3
                 var converter = GetConverter(request.Mode);
                 var openAIRequest = converter.GetParameters(request.Root, request.Parents);
                 var parameters = openAIRequest.Params;
+                parameters.TopP = request.Randomness;
 
                 OpenAIAPI api = new(APIAuthentication.LoadFromEnv(), new Engine(openAIRequest.Params.Engine));
 
                 CompletionResult completionResult = await api.Completions.CreateCompletionAsync(openAIRequest.Prompt, parameters.MaxTokens, parameters.Temperature, parameters.TopP, parameters.NumOutputs, parameters.PresencePenalty, parameters.FrequencyPenalty, stopSequences: parameters.StopSequences);
 
-                var resuts = completionResult.Completions.Select(c => c.Text.Trim()).Distinct();
+                var results = completionResult.Completions.Select(c => c.Text.Trim()).Distinct();
 
-                LogRequest(logger, openAIRequest, resuts);
+                LogRequest(logger, openAIRequest, results);
 
-                await response.WriteAsJsonAsync(resuts);
+                await response.WriteAsJsonAsync(results);
 
                 return response;
             }

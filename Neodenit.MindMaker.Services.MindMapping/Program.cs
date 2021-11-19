@@ -9,14 +9,14 @@ namespace Neodenit.MindMaker.Services.MindMapping
     {
         public static void Main()
         {
-            var config = new ConfigurationBuilder().AddJsonFile("local.settings.json", true).Build();
+            var config = new ConfigurationBuilder().AddJsonFile("local.settings.json", true).AddEnvironmentVariables().Build();
 
             var host = new HostBuilder()
                 .ConfigureFunctionsWorkerDefaults()
                 .ConfigureServices(services =>
                 {
                     services.AddTransient<IHelpers, Helpers>();
-                    services.AddSingleton(_ => new CosmosClient(config["Values:ConnectionString"]));
+                    services.AddSingleton(_ => new CosmosClient(config["ConnectionString"]));
                 })
                 .Build();
 

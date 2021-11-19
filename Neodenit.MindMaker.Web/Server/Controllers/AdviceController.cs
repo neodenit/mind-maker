@@ -26,6 +26,11 @@ namespace Neodenit.MindMaker.Web.Server.Controllers
         [HttpPost("GetAdvice")]
         public async Task<IEnumerable<string>> GetAdviceAsync(AdviceRequestModel request)
         {
+            if (!Creativity.Levels.Contains(request.Creativity))
+            {
+                throw new ArgumentException(nameof(request.Creativity));
+            }
+
             if (request.Parents.Any())
             {
                 var requestDTO = mapper.Map<AdviceRequestDTO>(request);

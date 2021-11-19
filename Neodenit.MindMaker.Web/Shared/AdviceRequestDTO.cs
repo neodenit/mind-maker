@@ -9,5 +9,7 @@ namespace Neodenit.MindMaker.Web.Shared
         public NodeDTO Root { get; set; }
 
         public Mode Mode { get; set; }
+
+        public double Randomness { get; set; }
     }
 }
