@@ -23,10 +23,10 @@
 
     <div class="input-group pb-3">
         <div class="input-group-prepend">
-            <label for="mode" class="input-group-text">Creativity</label>
+            <label for="creativity" class="input-group-text">Creativity</label>
         </div>
 
-        <select id="mode" class="form-control" @bind="@creativityLevel">
+        <select id="creativity" class="form-control" @bind="@creativityLevel">
             @foreach (var item in Creativity.Levels)
             {
                 <option value="@item">@item%</option>
@@ -269,9 +269,12 @@
     {
         for (var i = startingLevel; i < Settings.MaxDepth; i++)
         {
-            foreach (var item in layers[i])
+            if (layers[i] is not null)
             {
-                item.IsOpened = false;
+                foreach (var item in layers[i])
+                {
+                    item.IsOpened = false;
+                }
             }
         }
     }
