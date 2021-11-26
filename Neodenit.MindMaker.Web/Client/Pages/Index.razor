@@ -14,9 +14,9 @@
         </div>
 
         <select id="mode" class="form-control" @bind="@mode">
-            @foreach (var modeName in Enum.GetValues(typeof(Mode)))
+            @foreach (var (mode, label) in ModeList.Modes)
             {
-                <option value="@modeName">@modeName</option>
+                <option value="@mode">@label</option>
             }
         </select>
     </div>
