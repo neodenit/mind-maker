@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -8,8 +7,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Neodenit.MindMaker.Services.GPT3.Converters;
+using Neodenit.MindMaker.Services.GPT3.Helpers;
 using Neodenit.MindMaker.Services.GPT3.Models;
-using OpenAI_API;
 
 namespace Neodenit.MindMaker.Services.GPT3
 {
@@ -47,14 +46,9 @@ namespace Neodenit.MindMaker.Services.GPT3
 
                 var converter = GetConverter(request.Mode);
                 var openAIRequest = converter.GetParameters(request.Root, request.Parents);
-                var parameters = openAIRequest.Params;
-                parameters.TopP = request.Randomness;
+                openAIRequest.Params.TopP = request.Randomness;
 
-                OpenAIAPI api = new(APIAuthentication.LoadFromEnv(), new Engine(openAIRequest.Params.Engine));
-
-                CompletionResult completionResult = await api.Completions.CreateCompletionAsync(openAIRequest.Prompt, parameters.MaxTokens, parameters.Temperature, parameters.TopP, parameters.NumOutputs, parameters.PresencePenalty, parameters.FrequencyPenalty, stopSequences: parameters.StopSequences);
-
-                var results = completionResult.Completions.Select(c => c.Text.Trim()).Distinct();
+                IEnumerable<string> results = await GPT3Helper.GetGPT3Completion(openAIRequest);
 
                 LogRequest(logger, openAIRequest, results);
 
