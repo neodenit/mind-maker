@@ -14,10 +14,6 @@ namespace Neodenit.MindMaker.Services.GPT3.Models
 
         public string Owner { get; set; }
 
-        public DateTime CreationTime { get; set; }
-
-        public DateTime LastUpdateTime { get; set; }
-
         public IEnumerable<NodeDTO> Children { get; set; } = Enumerable.Empty<NodeDTO>();
     }
 }

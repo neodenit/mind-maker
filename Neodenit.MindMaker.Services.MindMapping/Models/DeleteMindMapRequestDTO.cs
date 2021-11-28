@@ -1,4 +1,4 @@
-﻿namespace Neodenit.MindMaker.Services.MindMapping
+﻿namespace Neodenit.MindMaker.Services.MindMapping.Models
 {
     public class DeleteMindMapRequestDTO
     {

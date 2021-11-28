@@ -18,17 +18,20 @@ namespace Neodenit.MindMaker.Services.GPT3
         private readonly ISubBranchConverter subBranchConverter;
         private readonly ISimpleBranchConverter simpleBranchConverter;
         private readonly ISimpleSubBranchConverter simpleSubBranchConverter;
+        private readonly IHuggingFaceHelper huggingFaceHelper;
 
         public GetAdvice(
             IBranchConverter branchConverter,
             ISubBranchConverter subBranchConverter,
             ISimpleBranchConverter simpleBranchConverter,
-            ISimpleSubBranchConverter simpleSubBranchConverter)
+            ISimpleSubBranchConverter simpleSubBranchConverter,
+            IHuggingFaceHelper huggingFaceHelper)
         {
             this.branchConverter = branchConverter ?? throw new ArgumentNullException(nameof(branchConverter));
             this.subBranchConverter = subBranchConverter ?? throw new ArgumentNullException(nameof(subBranchConverter));
             this.simpleBranchConverter = simpleBranchConverter ?? throw new ArgumentNullException(nameof(simpleBranchConverter));
             this.simpleSubBranchConverter = simpleSubBranchConverter ?? throw new ArgumentNullException(nameof(simpleSubBranchConverter));
+            this.huggingFaceHelper = huggingFaceHelper ?? throw new ArgumentNullException(nameof(huggingFaceHelper));
         }
 
         [Function(nameof(GetAdvice))]
@@ -45,12 +48,16 @@ namespace Neodenit.MindMaker.Services.GPT3
                 var response = req.CreateResponse();
 
                 var converter = GetConverter(request.Mode);
-                var openAIRequest = converter.GetParameters(request.Root, request.Parents);
-                openAIRequest.Params.TopP = request.Randomness;
+                var externalRequest = converter.GetParameters(request.Root, request.Parents);
+                externalRequest.Params.TopP = request.Randomness;
+                externalRequest.Engine = request.Engine;
 
-                IEnumerable<string> results = await GPT3Helper.GetGPT3Completion(openAIRequest);
+                IEnumerable<string> results =
+                    request.Engine == Engine.GPT3
+                        ? await GPT3Helper.GetCompletion(externalRequest)
+                        : await huggingFaceHelper.GetCompletion(externalRequest);
 
-                LogRequest(logger, openAIRequest, results);
+                LogRequest(logger, externalRequest, results);
 
                 await response.WriteAsJsonAsync(results);
 
@@ -73,7 +80,7 @@ namespace Neodenit.MindMaker.Services.GPT3
                 _ => throw new NotImplementedException()
             };
 
-        private static void LogRequest(ILogger logger, OpenAIRequest settings, IEnumerable<string> response)
+        private static void LogRequest(ILogger logger, ExternalRequest settings, IEnumerable<string> response)
         {
             logger.LogInformation(
                 JsonSerializer.Serialize(

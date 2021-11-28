@@ -8,15 +8,28 @@
 
 <div class="container-fluid">
 
-    <div class="input-group pb-3">
+    <div class="input-group pb-2">
+        <div class="input-group-prepend">
+            <label for="engine" class="input-group-text">Engine</label>
+        </div>
+
+        <select id="engine" class="form-control" @bind="@engine">
+            @foreach (var (item, label) in EngineList.Items)
+            {
+                <option value="@item">@label</option>
+            }
+        </select>
+    </div>
+
+    <div class="input-group pb-2">
         <div class="input-group-prepend">
             <label for="mode" class="input-group-text">Representation</label>
         </div>
 
         <select id="mode" class="form-control" @bind="@mode">
-            @foreach (var (mode, label) in ModeList.Modes)
+            @foreach (var (item, label) in ModeList.Modes)
             {
-                <option value="@mode">@label</option>
+                <option value="@item">@label</option>
             }
         </select>
     </div>
@@ -140,6 +153,7 @@
 
 @code
 {
+    private Engine engine;
     private Mode mode;
     private int creativityLevel;
 
@@ -347,7 +361,14 @@
         isAdding[level] = true;
 
         var path = GetPath(level);
-        var request = new AdviceRequestModel { Parents = path.Select(x => x.Name), Root = path.FirstOrDefault(), Mode = mode, Creativity = creativityLevel };
+        var request = new AdviceRequestModel
+        {
+            Parents = path.Select(x => x.Name),
+            Root = path.FirstOrDefault(),
+            Mode = mode,
+            Engine = engine,
+            Creativity = creativityLevel
+        };
         var adviceMessage = await HttpClient.PostAsJsonAsync($"api/GetAdvice", request);
         var adviceOptions = await adviceMessage.Content.ReadFromJsonAsync<IEnumerable<string>>();
 

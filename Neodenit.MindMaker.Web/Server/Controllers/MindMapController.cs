@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Neodenit.MindMaker.Web.Server.Models;
+using Neodenit.MindMaker.Web.Server.Services;
 using Neodenit.MindMaker.Web.Shared;
 
 namespace Neodenit.MindMaker.Web.Server.Controllers

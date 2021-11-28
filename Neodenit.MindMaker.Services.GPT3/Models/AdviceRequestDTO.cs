@@ -10,6 +10,8 @@ namespace Neodenit.MindMaker.Services.GPT3.Models
 
         public ConverterType Mode { get; set; }
 
+        public Engine Engine { get; set; }
+
         public double Randomness { get; set; }
     }
 }

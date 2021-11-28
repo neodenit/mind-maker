@@ -19,7 +19,7 @@ namespace Neodenit.MindMaker.Services.GPT3.Converters
             newParameters = settings.SubBranches ?? throw new ArgumentNullException(nameof(settings.SubBranches));
         }
 
-        public OpenAIRequest GetParameters(NodeDTO node, IEnumerable<string> parents)
+        public ExternalRequest GetParameters(NodeDTO node, IEnumerable<string> parents)
         {
             Parameters parameters = ParametersHelper.GetParameters(settings.Default, newParameters);
 
@@ -27,7 +27,7 @@ namespace Neodenit.MindMaker.Services.GPT3.Converters
 
             string fullPrompt = BlockPromptHelper.GetPrompt(branches, parents, parameters);
 
-            return new OpenAIRequest { Prompt = fullPrompt, Params = parameters };
+            return new ExternalRequest { Prompt = fullPrompt, Params = parameters };
         }
 
         public static IEnumerable<IEnumerable<string>> GetSubBranches(NodeDTO node) =>

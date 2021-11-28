@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Neodenit.MindMaker.Web.Shared;
 
-namespace Neodenit.MindMaker.Web.Server
+namespace Neodenit.MindMaker.Web.Server.Services
 {
     public class AdviceService : IAdviceService
     {

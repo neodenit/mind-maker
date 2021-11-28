@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Neodenit.MindMaker.Web.Shared;
 
-namespace Neodenit.MindMaker.Web.Server
+namespace Neodenit.MindMaker.Web.Server.Services
 {
     public interface IAdviceService
     {
