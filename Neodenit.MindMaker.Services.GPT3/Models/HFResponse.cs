@@ -1,7 +1,10 @@
-﻿namespace Neodenit.MindMaker.Services.GPT3.Models
+﻿using Newtonsoft.Json;
+
+namespace Neodenit.MindMaker.Services.GPT3.Models
 {
     public class HFResponse
     {
-        public string generated_text { get; set; }
+        [JsonProperty("generated_text")]
+        public string GeneratedText { get; set; }
     }
 }

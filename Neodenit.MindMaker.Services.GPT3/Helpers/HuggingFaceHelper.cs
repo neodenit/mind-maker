@@ -44,11 +44,12 @@ namespace Neodenit.MindMaker.Services.GPT3.Helpers
             };
 
             var url = GetEngineUrl(request.Engine);
-            var json = JsonConvert.SerializeObject(prompt);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var requestJson = JsonConvert.SerializeObject(prompt);
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync(url, content);
 
-            var model = await response.Content.ReadFromJsonAsync<IEnumerable<HFResponse>>();
+            var responseJson = await response.Content.ReadAsStringAsync();
+            var model = JsonConvert.DeserializeObject<IEnumerable<HFResponse>>(responseJson);
 
             var result = model.Select(x => GetText(request, x)).Where(x => !string.IsNullOrEmpty(x)).Distinct();
             return result;
@@ -64,9 +65,9 @@ namespace Neodenit.MindMaker.Services.GPT3.Helpers
 
         private static string GetText(ExternalRequest request, HFResponse completion)
         {
-            var stopWordIndexes = request.Params.StopSequences.Select(s => completion.generated_text.IndexOf(s));
+            var stopWordIndexes = request.Params.StopSequences.Select(s => completion.GeneratedText.IndexOf(s));
             var minIndex = stopWordIndexes.Min();
-            var result = minIndex > -1 ? completion.generated_text.Substring(0, minIndex) : completion.generated_text;
+            var result = minIndex > -1 ? completion.GeneratedText.Substring(0, minIndex) : completion.GeneratedText;
             return result.Trim();
         }
     }
