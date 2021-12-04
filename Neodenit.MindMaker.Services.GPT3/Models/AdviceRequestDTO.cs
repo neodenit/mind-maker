@@ -13,5 +13,7 @@ namespace Neodenit.MindMaker.Services.GPT3.Models
         public Engine Engine { get; set; }
 
         public double Randomness { get; set; }
+
+        public string Owner { get; set; }
     }
 }

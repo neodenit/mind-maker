@@ -10,7 +10,8 @@ namespace Neodenit.MindMaker.Web.Server
             CosmosClient cosmosClient = new(connectionString);
 
             Database database = await cosmosClient.CreateDatabaseIfNotExistsAsync(Constants.DatabaseId);
-            await database.CreateContainerIfNotExistsAsync(Constants.ContainerId, Constants.PartitionKey);
+            await database.CreateContainerIfNotExistsAsync(Constants.MindMapsContainerId, Constants.MindMapsPartitionKey);
+            await database.CreateContainerIfNotExistsAsync(Constants.SettingsContainerId, Constants.SettingsPartitionKey);
         }
     }
 }

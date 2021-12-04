@@ -25,5 +25,12 @@ namespace Neodenit.MindMaker.Web.Server.Services
             var advice = await response.Content.ReadFromJsonAsync<IEnumerable<string>>();
             return advice;
         }
+
+        public async Task<PromptSettingsDTO> GetPromptSettingsAsync(string owner)
+        {
+            var response = await httpClient.GetAsync($"api/GetPromptSettings/{owner}/");
+            var promptSettings = await response.Content.ReadFromJsonAsync<PromptSettingsDTO>();
+            return promptSettings;
+        }
     }
 }

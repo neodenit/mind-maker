@@ -13,5 +13,7 @@ namespace Neodenit.MindMaker.Web.Shared
         public Engine Engine { get; set; }
 
         public double Randomness { get; set; }
+
+        public string Owner { get; set; }
     }
 }

@@ -4,8 +4,12 @@
     {
         public const string DatabaseId = "MindMakerDB";
 
-        public const string ContainerId = "MindMaps";
+        public const string MindMapsContainerId = "MindMaps";
 
-        public const string PartitionKey = "/Owner";
+        public const string MindMapsPartitionKey = "/Owner";
+
+        public const string SettingsContainerId = "Settings";
+
+        public const string SettingsPartitionKey = "/id";
     }
 }

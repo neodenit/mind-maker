@@ -7,5 +7,7 @@ namespace Neodenit.MindMaker.Web.Server.Services
     public interface IAdviceService
     {
         Task<IEnumerable<string>> GetAdviceAsync(AdviceRequestDTO request);
+
+        Task<PromptSettingsDTO> GetPromptSettingsAsync(string owner);
     }
 }

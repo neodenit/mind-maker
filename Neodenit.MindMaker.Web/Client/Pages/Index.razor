@@ -8,44 +8,47 @@
 
 <div class="container-fluid">
 
-    <div class="input-group pb-2">
-        <div class="input-group-prepend">
-            <label for="engine" class="input-group-text">Engine</label>
+    @if (promptSettings is not null)
+    {
+        <div class="input-group pb-2">
+            <div class="input-group-prepend">
+                <label for="engine" class="input-group-text">Engine</label>
+            </div>
+
+            <select id="engine" class="form-control" @bind="@promptSettings.Engine">
+                @foreach (var (item, label) in EngineList.Items)
+                {
+                    <option value="@item">@label</option>
+                }
+            </select>
         </div>
 
-        <select id="engine" class="form-control" @bind="@engine">
-            @foreach (var (item, label) in EngineList.Items)
-            {
-                <option value="@item">@label</option>
-            }
-        </select>
-    </div>
+        <div class="input-group pb-2">
+            <div class="input-group-prepend">
+                <label for="mode" class="input-group-text">Representation</label>
+            </div>
 
-    <div class="input-group pb-2">
-        <div class="input-group-prepend">
-            <label for="mode" class="input-group-text">Representation</label>
+            <select id="mode" class="form-control" @bind="@promptSettings.Mode">
+                @foreach (var (item, label) in ModeList.Modes)
+                {
+                    <option value="@item">@label</option>
+                }
+            </select>
         </div>
 
-        <select id="mode" class="form-control" @bind="@mode">
-            @foreach (var (item, label) in ModeList.Modes)
-            {
-                <option value="@item">@label</option>
-            }
-        </select>
-    </div>
+        <div class="input-group pb-3">
+            <div class="input-group-prepend">
+                <label for="creativity" class="input-group-text">Creativity</label>
+            </div>
 
-    <div class="input-group pb-3">
-        <div class="input-group-prepend">
-            <label for="creativity" class="input-group-text">Creativity</label>
+            <select id="creativity" class="form-control" @bind="@promptSettings.Creativity">
+                @foreach (var item in Creativity.Levels)
+                {
+                    <option value="@item">@item%</option>
+                }
+            </select>
         </div>
-
-        <select id="creativity" class="form-control" @bind="@creativityLevel">
-            @foreach (var item in Creativity.Levels)
-            {
-                <option value="@item">@item%</option>
-            }
-        </select>
-    </div>
+    }
 
     <h1>Mind Maps</h1>
 
@@ -153,15 +156,12 @@
 
 @code
 {
-    private Engine engine;
-    private Mode mode;
-    private int creativityLevel;
-
     private string newNodeName;
     private string updatedNodeName;
     private IEnumerable<string> advice;
 
     private IEnumerable<NodeModel> mindMaps = Enumerable.Empty<NodeModel>();
+    private PromptSettingsModel promptSettings;
 
     private IList<IEnumerable<NodeModel>> layers;
     private IList<bool> isAdding;
@@ -175,7 +175,7 @@
             isAdding = new bool[Settings.MaxDepth];
             isEditing = new bool[Settings.MaxDepth];
 
-            creativityLevel = Creativity.DefaultLevel;
+            promptSettings = await HttpClient.GetFromJsonAsync<PromptSettingsModel>($"api/GetPromptSettings");
 
             mindMaps = await HttpClient.GetFromJsonAsync<IEnumerable<NodeModel>>($"api/MindMap");
 
@@ -362,13 +362,14 @@
 
         var path = GetPath(level);
         var request = new AdviceRequestModel
-        {
-            Parents = path.Select(x => x.Name),
-            Root = path.FirstOrDefault(),
-            Mode = mode,
-            Engine = engine,
-            Creativity = creativityLevel
-        };
+            {
+                Parents = path.Select(x => x.Name),
+                Root = path.FirstOrDefault(),
+                Mode = promptSettings.Mode,
+                Engine = promptSettings.Engine,
+                Creativity = promptSettings.Creativity
+            };
+
         var adviceMessage = await HttpClient.PostAsJsonAsync($"api/GetAdvice", request);
         var adviceOptions = await adviceMessage.Content.ReadFromJsonAsync<IEnumerable<string>>();
 

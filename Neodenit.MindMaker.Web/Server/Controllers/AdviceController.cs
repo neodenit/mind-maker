@@ -4,7 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Neodenit.MindMaker.Web.Server.Helpers;
+using Neodenit.MindMaker.Web.Server.Models;
 using Neodenit.MindMaker.Web.Server.Services;
 using Neodenit.MindMaker.Web.Shared;
 
@@ -17,11 +20,13 @@ namespace Neodenit.MindMaker.Web.Server.Controllers
     {
         private readonly IMapper mapper;
         private readonly IAdviceService adviceService;
+        private readonly UserHelper userHelper;
 
-        public AdviceController(IMapper mapper, IAdviceService adviceService)
+        public AdviceController(IMapper mapper, IAdviceService adviceService, UserManager<ApplicationUser> userManager)
         {
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             this.adviceService = adviceService ?? throw new ArgumentNullException(nameof(adviceService));
+            userHelper = new UserHelper(userManager);
         }
 
         [HttpPost("GetAdvice")]
@@ -36,6 +41,8 @@ namespace Neodenit.MindMaker.Web.Server.Controllers
             {
                 var requestDTO = mapper.Map<AdviceRequestDTO>(request);
 
+                requestDTO.Owner = await userHelper.GetUserNameAwait(User);
+
                 IEnumerable<string> advice = await adviceService.GetAdviceAsync(requestDTO);
                 return advice;
             }
@@ -43,6 +50,15 @@ namespace Neodenit.MindMaker.Web.Server.Controllers
             {
                 return Enumerable.Empty<string>();
             }
+        }
+
+        [HttpGet("GetPromptSettings")]
+        public async Task<PromptSettingsModel> GetPromptSettingsAsync()
+        {
+            string owner = await userHelper.GetUserNameAwait(User);
+            PromptSettingsDTO promptSettings = await adviceService.GetPromptSettingsAsync(owner);
+            var model = mapper.Map<PromptSettingsModel>(promptSettings);
+            return model;
         }
     }
 }

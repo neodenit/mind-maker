@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Neodenit.MindMaker.Services.GPT3.Converters;
 using Neodenit.MindMaker.Services.GPT3.Helpers;
 using Neodenit.MindMaker.Services.GPT3.Models;
+using Neodenit.MindMaker.Services.MindMapping.Models;
 
 namespace Neodenit.MindMaker.Services.GPT3
 {
@@ -61,7 +62,15 @@ namespace Neodenit.MindMaker.Services.GPT3
 
                 await response.WriteAsJsonAsync(results);
 
-                return response;
+                PromptSettings promptSettings = new()
+                {
+                    Id = request.Owner,
+                    Engine = request.Engine,
+                    Mode = request.Mode,
+                    Randomness = request.Randomness
+                };
+
+                return new MultiResponse { PromptSettings = promptSettings, HttpResponse = response };
             }
             catch (Exception ex)
             {
