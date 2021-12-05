@@ -19,19 +19,21 @@ namespace Neodenit.MindMaker.Services.GPT3
         private readonly ISubBranchConverter subBranchConverter;
         private readonly ISimpleBranchConverter simpleBranchConverter;
         private readonly ISimpleSubBranchConverter simpleSubBranchConverter;
+        private readonly IParentChildConverter parentChildConverter;
         private readonly IHuggingFaceHelper huggingFaceHelper;
 
-        public GetAdvice(
-            IBranchConverter branchConverter,
-            ISubBranchConverter subBranchConverter,
-            ISimpleBranchConverter simpleBranchConverter,
-            ISimpleSubBranchConverter simpleSubBranchConverter,
-            IHuggingFaceHelper huggingFaceHelper)
+        public GetAdvice(IBranchConverter branchConverter,
+                         ISubBranchConverter subBranchConverter,
+                         ISimpleBranchConverter simpleBranchConverter,
+                         ISimpleSubBranchConverter simpleSubBranchConverter,
+                         IParentChildConverter parentChildConverter,
+                         IHuggingFaceHelper huggingFaceHelper)
         {
             this.branchConverter = branchConverter ?? throw new ArgumentNullException(nameof(branchConverter));
             this.subBranchConverter = subBranchConverter ?? throw new ArgumentNullException(nameof(subBranchConverter));
             this.simpleBranchConverter = simpleBranchConverter ?? throw new ArgumentNullException(nameof(simpleBranchConverter));
             this.simpleSubBranchConverter = simpleSubBranchConverter ?? throw new ArgumentNullException(nameof(simpleSubBranchConverter));
+            this.parentChildConverter = parentChildConverter ?? throw new ArgumentNullException(nameof(parentChildConverter));
             this.huggingFaceHelper = huggingFaceHelper ?? throw new ArgumentNullException(nameof(huggingFaceHelper));
         }
 
@@ -86,6 +88,7 @@ namespace Neodenit.MindMaker.Services.GPT3
                 ConverterType.SubBranch => subBranchConverter,
                 ConverterType.SimpleBranch => simpleBranchConverter,
                 ConverterType.SimpleSubBranch => simpleSubBranchConverter,
+                ConverterType.ParentChildConverter => parentChildConverter,
                 _ => throw new NotImplementedException()
             };
 

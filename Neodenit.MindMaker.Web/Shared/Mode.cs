@@ -5,6 +5,7 @@
         Branch,
         SubBranch,
         SimpleBranch,
-        SimpleSubBranch
+        SimpleSubBranch,
+        ParentChildConverter
     }
 }

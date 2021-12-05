@@ -12,6 +12,8 @@
 
         public Parameters SimpleSubBranches { get; set; }
 
+        public Parameters ParentChild { get; set; }
+
         public Urls Urls { get; set; }
 
         public int NumBeams { get; set; }
