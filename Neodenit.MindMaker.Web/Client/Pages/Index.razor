@@ -223,7 +223,7 @@
         isEditing[level] = false;
         newNodeName = string.Empty;
 
-        if (level > 0 && !layers[level].Any())
+        if (Settings.EnableQuickAdding && level > 0 && !layers[level].Any())
         {
             CloseNodes(level - 1);
         }
