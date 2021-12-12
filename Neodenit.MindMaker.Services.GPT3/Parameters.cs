@@ -26,6 +26,10 @@
 
         public string PromptEnd { get; set; }
 
+        public string ChildBlockStart { get; set; }
+
+        public string ChildSeparator { get; set; }
+
         public Parameters Clone() => MemberwiseClone() as Parameters;
     }
 }

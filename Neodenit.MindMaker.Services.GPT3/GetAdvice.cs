@@ -27,6 +27,7 @@ namespace Neodenit.MindMaker.Services.GPT3
                          ISimpleBranchConverter simpleBranchConverter,
                          ISimpleSubBranchConverter simpleSubBranchConverter,
                          IParentChildConverter parentChildConverter,
+                         IParentChildrenConverter parentChildrenConverter,
                          IHuggingFaceHelper huggingFaceHelper)
         {
             this.branchConverter = branchConverter ?? throw new ArgumentNullException(nameof(branchConverter));
@@ -34,6 +35,7 @@ namespace Neodenit.MindMaker.Services.GPT3
             this.simpleBranchConverter = simpleBranchConverter ?? throw new ArgumentNullException(nameof(simpleBranchConverter));
             this.simpleSubBranchConverter = simpleSubBranchConverter ?? throw new ArgumentNullException(nameof(simpleSubBranchConverter));
             this.parentChildConverter = parentChildConverter ?? throw new ArgumentNullException(nameof(parentChildConverter));
+            this.parentChildrenConverter = parentChildrenConverter ?? throw new ArgumentNullException(nameof(parentChildrenConverter));
             this.huggingFaceHelper = huggingFaceHelper ?? throw new ArgumentNullException(nameof(huggingFaceHelper));
         }
 
@@ -89,6 +91,7 @@ namespace Neodenit.MindMaker.Services.GPT3
                 ConverterType.SimpleBranch => simpleBranchConverter,
                 ConverterType.SimpleSubBranch => simpleSubBranchConverter,
                 ConverterType.ParentChildConverter => parentChildConverter,
+                ConverterType.ParentChildrenConverter => parentChildrenConverter,
                 _ => throw new NotImplementedException()
             };
 

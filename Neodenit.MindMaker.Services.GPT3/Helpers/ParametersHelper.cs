@@ -16,6 +16,9 @@ namespace Neodenit.MindMaker.Services.GPT3.Helpers
             parameters.NodeSeparator = StringHelper.FixString(newParams.NodeSeparator);
             parameters.BlockSeparator = StringHelper.FixString(newParams.BlockSeparator);
 
+            parameters.ChildBlockStart = StringHelper.FixString(newParams.ChildBlockStart);
+            parameters.ChildSeparator = StringHelper.FixString(newParams.ChildSeparator);
+
             return parameters;
         }
     }

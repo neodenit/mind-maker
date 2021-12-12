@@ -10,7 +10,8 @@ namespace Neodenit.MindMaker.Web.Shared
             (Mode.SubBranch, "Branches and Sub-Branches"),
             (Mode.SimpleBranch, "Simple Branches"),
             (Mode.SimpleSubBranch, "Simple Branches and Sub-Branches"),
-            (Mode.ParentChildConverter, "Parent and Child Pairs")
+            (Mode.ParentChildConverter, "Parent and Child Pairs"),
+            (Mode.ParentChildrenConverter, "Parent and Children Blocks")
         };
     }
 }

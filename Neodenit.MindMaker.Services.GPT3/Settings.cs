@@ -14,6 +14,8 @@
 
         public Parameters ParentChild { get; set; }
 
+        public Parameters ParentChildren { get; set; }
+
         public Urls Urls { get; set; }
 
         public int NumBeams { get; set; }

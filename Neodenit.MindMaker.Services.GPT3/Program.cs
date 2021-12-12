@@ -24,7 +24,9 @@ namespace Neodenit.MindMaker.Services.GPT3
                     services.AddTransient<ISimpleBranchConverter, SimpleBranchConverter>();
                     services.AddTransient<ISimpleSubBranchConverter, SimpleSubBranchConverter>();
                     services.AddTransient<IParentChildConverter, ParentChildConverter>();
+                    services.AddTransient<IParentChildrenConverter, ParentChildrenConverter>();
                     services.AddTransient<IHuggingFaceHelper, HuggingFaceHelper>();
+                    services.AddTransient<INodeHelper, NodeHelper>();
                     services.AddHttpClient<IHuggingFaceHelper, HuggingFaceHelper>();
                     services.AddSingleton(settings);
                 })

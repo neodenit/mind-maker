@@ -5,5 +5,7 @@
         public int MaxDepth { get; set; }
 
         public bool EnableQuickAdding { get; set; }
+
+        public bool EnableChildrenCount { get; set; }
     }
 }
