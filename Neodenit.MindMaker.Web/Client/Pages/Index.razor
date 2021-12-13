@@ -70,7 +70,7 @@
 
                                 @if (i > 0 && !node.IsOpened && node.Children.Any())
                                 {
-                                    <span class="badge badge-light float-right">@node.Children.Count()</span>
+                                    <span class="badge badge-light float-right">@(Settings.EnableChildrenCount ? node.Children.Count().ToString() : Constants.Ellipsis)</span>
                                 }
                             </button>
                         }
