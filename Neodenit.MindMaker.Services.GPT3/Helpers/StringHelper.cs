@@ -12,6 +12,6 @@ namespace Neodenit.MindMaker.Services.GPT3.Helpers
         };
 
         public static string FixString(string s) =>
-            Replacements.Aggregate(s, (acc, item) => acc.Replace(item.Key, item.Value));
+            s is null ? null : Replacements.Aggregate(s, (acc, item) => acc.Replace(item.Key, item.Value));
     }
 }
