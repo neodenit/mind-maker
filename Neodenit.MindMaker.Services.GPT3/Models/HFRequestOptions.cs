@@ -6,5 +6,8 @@ namespace Neodenit.MindMaker.Services.GPT3.Models
     {
         [JsonProperty("wait_for_model")]
         public bool WaitForModel { get; set; }
+
+        [JsonProperty("use_cache")]
+        public bool UseCache { get; set; }
     }
 }
