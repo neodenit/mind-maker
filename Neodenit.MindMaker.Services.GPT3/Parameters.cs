@@ -4,6 +4,8 @@
     {
         public string Engine { get; set; }
 
+        public bool DoSample { get; set; }
+
         public int MaxTokens { get; set; }
 
         public double Temperature { get; set; }

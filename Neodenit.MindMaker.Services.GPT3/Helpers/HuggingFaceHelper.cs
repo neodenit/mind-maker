@@ -35,6 +35,7 @@ namespace Neodenit.MindMaker.Services.GPT3.Helpers
                 Parameters = new HFRequestParameters
                 {
                     MaxNewTokens = parameters.MaxTokens,
+                    DoSample = parameters.DoSample,
                     TopP = parameters.TopP,
                     NumReturnSequences = parameters.NumOutputs,
                     NumBeams = settings.NumBeams,
