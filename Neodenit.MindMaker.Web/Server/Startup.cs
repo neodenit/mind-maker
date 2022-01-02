@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Neodenit.MindMaker.Web.Server.Data;
 using Neodenit.MindMaker.Web.Server.Models;
+using Neodenit.MindMaker.Web.Server.Services;
 
 namespace Neodenit.MindMaker.Web.Server
 {
