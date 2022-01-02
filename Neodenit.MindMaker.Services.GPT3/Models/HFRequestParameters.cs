@@ -4,6 +4,9 @@ namespace Neodenit.MindMaker.Services.GPT3.Models
 {
     public class HFRequestParameters
     {
+        [JsonProperty("do_sample")]
+        public bool? DoSample { get; set; }
+
         [JsonProperty("top_k")]
         public int? TopK { get; set; }
 
