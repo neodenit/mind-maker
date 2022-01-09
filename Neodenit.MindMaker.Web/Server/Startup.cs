@@ -47,6 +47,14 @@ namespace Neodenit.MindMaker.Web.Server
             services.AddHttpClient<IAdviceService, AdviceService>(client => client.BaseAddress = new Uri(Configuration["AdviceServiceUrl"]));
 
             services.AddAutoMapper(typeof(Startup));
+
+            services.Configure<Microsoft.AspNetCore.Identity.IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ICosmosDB cosmosDB)
