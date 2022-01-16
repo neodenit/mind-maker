@@ -377,7 +377,7 @@
         {
             var layer = layers[level];
 
-            advice = adviceOptions.Where(ac => !layer.Any(node => node.Name == ac));
+            advice = adviceOptions.Where(ac => !layer.Any(node => node.Name.ToLowerInvariant() == ac.ToLowerInvariant()));
         }
         else
         {
