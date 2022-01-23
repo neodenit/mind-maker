@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker.Http;
 using Neodenit.MindMaker.Services.GPT3.Models;
 using Newtonsoft.Json;
 
@@ -49,11 +47,20 @@ namespace Neodenit.MindMaker.Services.GPT3.Helpers
             var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync(url, content);
 
-            var responseJson = await response.Content.ReadAsStringAsync();
-            var model = JsonConvert.DeserializeObject<IEnumerable<HFResponse>>(responseJson);
+            if (response.IsSuccessStatusCode)
+            {
+                var responseJson = await response.Content.ReadAsStringAsync();
+                var model = JsonConvert.DeserializeObject<IEnumerable<HFResponse>>(responseJson);
 
-            var result = model.Select(x => GetText(request, x)).Where(x => !string.IsNullOrEmpty(x)).Distinct();
-            return result;
+                var result = model.Select(x => GetText(request, x)).Where(x => !string.IsNullOrEmpty(x)).Distinct();
+                return result;
+            }
+            else
+            {
+                var responseJson = await response.Content.ReadAsStringAsync();
+                return Enumerable.Empty<string>();
+            }
+
         }
 
         private string GetEngineUrl(Engine engine) =>

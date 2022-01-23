@@ -60,7 +60,7 @@ namespace Neodenit.MindMaker.Services.GPT3
                 IEnumerable<string> results =
                     request.Engine == Engine.GPT3
                         ? await GPT3Helper.GetCompletion(externalRequest)
-                        : await huggingFaceHelper.GetCompletion(externalRequest);
+                        : await huggingFaceHelper.GetCompletion(externalRequest, logger);
 
                 LogRequest(logger, externalRequest, results);
 
