@@ -20,6 +20,7 @@ namespace Neodenit.MindMaker.Services.GPT3
         private readonly ISimpleBranchConverter simpleBranchConverter;
         private readonly ISimpleSubBranchConverter simpleSubBranchConverter;
         private readonly IParentChildConverter parentChildConverter;
+        private readonly IParentChildrenConverter parentChildrenConverter;
         private readonly IHuggingFaceHelper huggingFaceHelper;
 
         public GetAdvice(IBranchConverter branchConverter,
@@ -40,7 +41,7 @@ namespace Neodenit.MindMaker.Services.GPT3
         }
 
         [Function(nameof(GetAdvice))]
-        public async Task<HttpResponseData> RunAsync(
+        public async Task<MultiResponse> RunAsync(
             [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
             FunctionContext executionContext)
         {

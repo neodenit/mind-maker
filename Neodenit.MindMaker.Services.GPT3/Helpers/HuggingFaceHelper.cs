@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Neodenit.MindMaker.Services.GPT3.Models;
 using Newtonsoft.Json;
 
@@ -21,7 +22,7 @@ namespace Neodenit.MindMaker.Services.GPT3.Helpers
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        public async Task<IEnumerable<string>> GetCompletion(ExternalRequest request)
+        public async Task<IEnumerable<string>> GetCompletion(ExternalRequest request, ILogger logger = null)
         {
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Environment.GetEnvironmentVariable("HF_KEY"));
 
@@ -57,7 +58,12 @@ namespace Neodenit.MindMaker.Services.GPT3.Helpers
             }
             else
             {
-                var responseJson = await response.Content.ReadAsStringAsync();
+                if (logger is not null)
+                {
+                    var responseJson = await response.Content.ReadAsStringAsync();
+                    logger.LogError(responseJson);
+                }
+
                 return Enumerable.Empty<string>();
             }
 
